@@ -3,8 +3,8 @@ from datetime import datetime
 from enum import Enum
 
 class MediaTypeEnum(str, Enum):
-  IMAGE = "image"
-  VIDEO = "video"
+  IMAGE = "IMAGE"
+  VIDEO = "VIDEO"
 
 class ThemeMediaBase(BaseModel):
   url: HttpUrl

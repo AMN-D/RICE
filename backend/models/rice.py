@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, func, Boolean, Text, CheckConstraint, UniqueConstraint, Index, Enum
 from sqlalchemy.orm import relationship
+from datetime import datetime
 from db.base import Base
 import enum
 
@@ -13,7 +14,7 @@ class Rice(Base):
     views = Column(Integer, default=0, nullable=False)
     dotfile_clicks = Column(Integer, default=0, nullable=False)
     date_added = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    date_updated = Column(DateTime(timezone=True), onupdate=func.now())
+    date_updated = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     is_deleted = Column(Boolean, default=False, nullable=False, index=True)
     
     user = relationship("User", back_populates="rices")
@@ -33,16 +34,15 @@ class Theme(Base):
     date_added = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     rice = relationship("Rice", back_populates="themes")
-    media = relationship("ThemeMedia", back_populates="theme", cascade="all, delete-orphan")  # ✅ NEW
+    media = relationship("ThemeMedia", back_populates="theme", cascade="all, delete-orphan")  
 
     __table_args__ = (
         Index('ix_themes_rice_order', 'rice_id', 'display_order'),  
     )
 
 class MediaType(enum.Enum):
-    IMAGE = "image"
-    VIDEO = "video"
-
+    IMAGE = "IMAGE"
+    VIDEO = "VIDEO"
 
 class ThemeMedia(Base):
     __tablename__ = "theme_media"

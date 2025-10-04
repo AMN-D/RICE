@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from itsdangerous import URLSafeSerializer, BadSignature
-from fastapi.responses import RedirectResponse
-from services import user_service, google_auth
+from fastapi.responses import RedirectResponse, Response
+from services import user_service, google_auth, jwt_service
 from sqlalchemy.ext.asyncio import AsyncSession
 from schemas.user import UserOut
 from db.session import get_db
@@ -64,5 +64,25 @@ async def callback(
     )
 
     return response
+
+@router.post("/logout")
+async def logout(
+    response: Response,
+    user_id: int = Depends(jwt_service.get_current_user)
+):
+
+    response.delete_cookie(
+        key="access_token",
+        path="/",
+        httponly=True,
+        secure=False,  
+        samesite="lax"
+    )
+    
+    return {
+        "message": "Successfully logged out",
+        "user_id": user_id
+    }
+
 
     

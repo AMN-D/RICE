@@ -1,5 +1,5 @@
 from db.base import Base
-import models.user  
+from models import rice, user
 
 from logging.config import fileConfig
 
