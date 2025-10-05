@@ -34,10 +34,7 @@ export interface Theme {
 }
 
 // Media types
-export enum MediaType {
-  IMAGE = 'image',
-  VIDEO = 'video'
-}
+export type MediaType = 'image' | 'video';
 
 export interface Media {
   id: string;

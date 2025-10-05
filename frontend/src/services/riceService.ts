@@ -1,5 +1,5 @@
 import { api } from './api';
-import { Rice, PaginatedResponse } from '../types';
+import type { Rice, PaginatedResponse } from '../types';
 
 export const riceService = {
   getAllRices: async (page = 1, size = 20) => {
