@@ -2,3 +2,5 @@ env/
 backend/.env
 backend/alembic.ini
 backend/__pycache__
+
+frontend/.env
