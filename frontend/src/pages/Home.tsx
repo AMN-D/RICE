@@ -1,4 +1,5 @@
 import { useRices } from '../hooks/useRices';
+import Header from '../components/Header';
 
 export default function Home() {
   const { rices, loading, error } = useRices();
@@ -22,12 +23,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">Rice Showcase</h1>
-          <p className="mt-2 text-gray-600">Discover and share Linux customizations</p>
-        </div>
-      </header>
+      <Header />
 
       {/* Rice Grid */}
       <main className="max-w-7xl mx-auto px-4 py-8">

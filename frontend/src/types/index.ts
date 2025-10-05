@@ -1,12 +1,18 @@
 // User types
 export interface User {
-  id: string;
+  id: number;
+  username: string | null;
+  email?: string;
+  avatar_url: string | null;
+  bio: string | null;
+  github_url: string | null;
+}
+
+export interface ProfileData {
   username: string;
-  email: string;
-  avatar_url?: string;
   bio?: string;
   github_url?: string;
-  created_at: string;
+  avatar_url?: string;
 }
 
 // Rice types

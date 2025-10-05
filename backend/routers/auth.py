@@ -53,14 +53,15 @@ async def callback(
     from services import jwt_service
     token = jwt_service.create_access_token(user.id)
 
-    response = RedirectResponse(url="/dashboard")
+    response = RedirectResponse(url="http://localhost:5173")
     response.set_cookie(
         key="access_token", 
         value=token, 
         httponly=True, 
         secure=False, 
         samesite="lax",
-        max_age=7*24*60*60  # 7 days
+        max_age=7*24*60*60,  # 7 days
+        domain="localhost"
     )
 
     return response
