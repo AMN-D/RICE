@@ -11,17 +11,17 @@ export interface User {
 
 // Rice types
 export interface Rice {
-  id: string;
-  user_id: string;
-  title: string;
-  description: string;
-  distro: string;
-  window_manager?: string;
-  dotfile_link?: string;
-  created_at: string;
-  updated_at: string;
-  view_count: number;
-  user?: User;
+  id: number;
+  user_id: number;
+  name: string;
+  dotfile_url: string;
+  views: number;
+  dotfile_clicks: number;
+  date_added: string;
+  themes_count: number;
+  reviews_count: number;
+  avg_rating: number | null;
+  preview_image: string | null;
 }
 
 // Theme types

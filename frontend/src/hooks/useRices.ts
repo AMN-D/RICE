@@ -12,10 +12,11 @@ export const useRices = () => {
       try {
         setLoading(true);
         const data = await riceService.getAllRices(1, 20);
-        setRices(data.items);
+        setRices(data);
       } catch (err) {
         setError('Failed to load rices');
-        console.error(err);
+        console.error('Error:', err);
+        setRices([]);
       } finally {
         setLoading(false);
       }

@@ -1,28 +1,16 @@
 import { api } from './api';
-import type { Rice, PaginatedResponse } from '../types';
+import type { Rice } from '../types';
 
 export const riceService = {
-  getAllRices: async (page = 1, size = 20) => {
-    const response = await api.get<PaginatedResponse<Rice>>('/rices/', {
-      params: { skip: (page - 1) * size, limit: size }
+  getAllRices: async (page = 1, size = 20, sortBy = 'recent') => {
+    const response = await api.get<Rice[]>('/rices/', {
+      params: { skip: (page - 1) * size, limit: size, sort_by: sortBy }
     });
     return response.data;
   },
 
-  getRiceById: async (id: string) => {
+  getRiceById: async (id: number) => {
     const response = await api.get<Rice>(`/rices/${id}`);
-    return response.data;
-  },
-
-  searchRices: async (query: string, page = 1, size = 20) => {
-    const response = await api.get<PaginatedResponse<Rice>>('/rices/search/', {
-      params: { q: query, skip: (page - 1) * size, limit: size }
-    });
-    return response.data;
-  },
-
-  getUserRices: async (userId: string) => {
-    const response = await api.get<Rice[]>(`/rices/user/${userId}`);
     return response.data;
   },
 };

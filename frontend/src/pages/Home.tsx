@@ -37,25 +37,34 @@ export default function Home() {
               key={rice.id}
               className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
             >
-              {/* Placeholder for image - we'll add this later */}
-              <div className="aspect-video bg-gray-100 flex items-center justify-center">
-                <span className="text-gray-400">No image</span>
-              </div>
+              {/* Image or placeholder */}
+              {rice.preview_image ? (
+                <img 
+                  src={rice.preview_image} 
+                  alt={rice.name}
+                  className="aspect-video w-full object-cover"
+                />
+              ) : (
+                <div className="aspect-video bg-gray-100 flex items-center justify-center">
+                  <span className="text-gray-400">No preview</span>
+                </div>
+              )}
               
               <div className="p-4">
                 <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                  {rice.title}
+                  {rice.name}
                 </h2>
-                <p className="text-gray-600 text-sm line-clamp-2 mb-3">
-                  {rice.description}
-                </p>
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  <span>{rice.distro}</span>
-                  {rice.window_manager && (
-                    <span className="text-xs bg-gray-100 px-2 py-1 rounded">
-                      {rice.window_manager}
-                    </span>
+                
+                <div className="flex items-center justify-between text-sm text-gray-500 mb-2">
+                  <span>{rice.views} views</span>
+                  {rice.avg_rating && (
+                    <span className="text-yellow-600">★ {rice.avg_rating.toFixed(1)}</span>
                   )}
+                </div>
+
+                <div className="flex items-center justify-between text-xs text-gray-400">
+                  <span>{rice.themes_count} themes</span>
+                  <span>{rice.reviews_count} reviews</span>
                 </div>
               </div>
             </article>
