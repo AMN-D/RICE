@@ -4,6 +4,9 @@ import Home from './pages/Home';
 import CompleteProfile from './pages/CompleteProfile';
 import CreateRice from './pages/CreateRice';
 import ManageRices from './pages/ManageRices';
+import RiceDetail from './pages/RiceDetail';
+import UserProfile from './pages/UserProfile';
+import SearchResults from './pages/SearchResults';
 
 function ProtectedRoutes() {
   const { user, loading } = useAuth();
@@ -23,6 +26,9 @@ function ProtectedRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/search" element={<SearchResults />} />
+      <Route path="/rice/:id" element={<RiceDetail />} />
+      <Route path="/user/:id" element={<UserProfile />} />
       <Route path="/create" element={<CreateRice />} />
       <Route path="/manage" element={<ManageRices />} />
       <Route path="/complete-profile" element={<CompleteProfile />} />

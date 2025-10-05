@@ -24,31 +24,55 @@ export interface Rice {
   views: number;
   dotfile_clicks: number;
   date_added: string;
+  date_updated?: string;
   themes_count: number;
   reviews_count: number;
   avg_rating: number | null;
   preview_image: string | null;
+  themes?: Theme[];
 }
 
-// Theme types
+// Theme types  
 export interface Theme {
-  id: string;
-  rice_id: string;
+  id: number;
+  rice_id: number;
   name: string;
-  color_scheme?: string;
-  created_at: string;
+  description: string | null;
+  tags: string | null;
+  display_order: number;
+  date_added: string;
+  media?: Media[];
 }
 
 // Media types
-export type MediaType = 'image' | 'video';
+export type MediaType = 'IMAGE' | 'VIDEO';
 
 export interface Media {
-  id: string;
-  theme_id: string;
+  id: number;
+  theme_id: number;
+  url: string;
   media_type: MediaType;
-  media_url: string;
   display_order: number;
-  created_at: string;
+  thumbnail_url: string | null;
+  date_added: string;
+}
+
+export interface MediaCreate {
+  url: string;
+  media_type: MediaType;
+  display_order: number;
+  thumbnail_url?: string;
+}
+
+export interface MediaUpdate {
+  url?: string;
+  display_order?: number;
+  thumbnail_url?: string;
+}
+
+export interface MediaReorder {
+  media_id: number;
+  display_order: number;
 }
 
 // Review types
@@ -70,19 +94,12 @@ export interface PaginatedResponse<T> {
   size: number;
 }
 
-export interface MediaCreate {
-  url: string;
-  media_type: 'IMAGE' | 'VIDEO';
-  display_order: number;
-  thumbnail_url?: string;
-}
-
 export interface ThemeCreate {
   name: string;
   description?: string;
   tags?: string;
   display_order: number;
-  media: MediaCreate[];
+  media?: MediaCreate[];
 }
 
 export interface RiceCreate {

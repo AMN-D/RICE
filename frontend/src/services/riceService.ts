@@ -22,6 +22,14 @@ export const riceService = {
     return response.data;
   },
 
+  // Search rices
+  searchRices: async (query: string, page = 1, size = 20) => {
+    const response = await api.get<Rice[]>('/rices/search/', {
+      params: { q: query, skip: (page - 1) * size, limit: size }
+    });
+    return response.data;
+  },
+
   // Get my rices
   getMyRices: async (includeDeleted = false) => {
     const response = await api.get<Rice[]>('/rices/user/me/rices', {

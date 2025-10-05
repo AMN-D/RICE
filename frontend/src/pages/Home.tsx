@@ -1,8 +1,10 @@
 import { useRices } from '../hooks/useRices';
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 
 export default function Home() {
   const { rices, loading, error } = useRices();
+  const navigate = useNavigate();
 
   if (loading) {
     return (
@@ -22,7 +24,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
       <Header />
 
       {/* Rice Grid */}
@@ -31,6 +32,7 @@ export default function Home() {
           {rices.map((rice) => (
             <article 
               key={rice.id}
+              onClick={() => navigate(`/rice/${rice.id}`)}
               className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
             >
               {/* Image or placeholder */}
