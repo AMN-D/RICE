@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import ProfileModal from './ProfileModal';
 
 export default function Header() {
   const { user, loading, login, logout } = useAuth();
+  const navigate = useNavigate();
   const [showProfileModal, setShowProfileModal] = useState(false);
 
   return (
@@ -12,7 +14,7 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Logo/Title */}
-            <div>
+            <div className="cursor-pointer" onClick={() => navigate('/')}>
               <h1 className="text-2xl font-bold text-gray-900">Rice Showcase</h1>
               <p className="text-sm text-gray-600">Linux customizations</p>
             </div>
@@ -23,7 +25,15 @@ export default function Header() {
                 <div className="text-gray-400">Loading...</div>
               ) : user ? (
                 <div className="flex items-center gap-4">
-                  {/* Avatar - clickable */}
+                  {/* Create Button */}
+                  <button
+                    onClick={() => navigate('/create')}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  >
+                    + Create Rice
+                  </button>
+
+                  {/* Avatar */}
                   <button
                     onClick={() => setShowProfileModal(true)}
                     className="focus:outline-none focus:ring-2 focus:ring-gray-800 rounded-full"
@@ -63,7 +73,6 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Profile Modal */}
       <ProfileModal 
         isOpen={showProfileModal} 
         onClose={() => setShowProfileModal(false)} 

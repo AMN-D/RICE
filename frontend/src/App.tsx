@@ -1,7 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import Home from './pages/Home';
 import CompleteProfile from './pages/CompleteProfile';
+import CreateRice from './pages/CreateRice';
+import ManageRices from './pages/ManageRices';
 
 function ProtectedRoutes() {
   const { user, loading } = useAuth();
@@ -21,6 +23,8 @@ function ProtectedRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/create" element={<CreateRice />} />
+      <Route path="/manage" element={<ManageRices />} />
       <Route path="/complete-profile" element={<CompleteProfile />} />
     </Routes>
   );

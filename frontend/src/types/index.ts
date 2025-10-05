@@ -69,3 +69,24 @@ export interface PaginatedResponse<T> {
   page: number;
   size: number;
 }
+
+export interface MediaCreate {
+  url: string;
+  media_type: 'IMAGE' | 'VIDEO';
+  display_order: number;
+  thumbnail_url?: string;
+}
+
+export interface ThemeCreate {
+  name: string;
+  description?: string;
+  tags?: string;
+  display_order: number;
+  media: MediaCreate[];
+}
+
+export interface RiceCreate {
+  name: string;
+  dotfile_url: string;
+  themes: ThemeCreate[];
+}
