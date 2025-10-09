@@ -51,6 +51,7 @@ export interface Media {
   id: number;
   theme_id: number;
   url: string;
+  media_url: string;
   media_type: MediaType;
   display_order: number;
   thumbnail_url: string | null;
@@ -75,15 +76,34 @@ export interface MediaReorder {
   display_order: number;
 }
 
-// Review types
+// Add these interfaces to your existing types file
+
 export interface Review {
-  id: string;
-  rice_id: string;
-  user_id: string;
+  id: number;
+  user_id: number;
+  rice_id: number;
   rating: number;
+  comment: string;
+  helpful_count: number;
+  date_created: string;
+  date_updated: string;
+  username: string;
+}
+
+export interface CreateReviewRequest {
+  rating: number;
+  comment: string;
+}
+
+export interface GetReviewsParams {
+  skip?: number;
+  limit?: number;
+  sort_by?: 'recent' | 'helpful' | 'rating_high' | 'rating_low';
+}
+
+export interface UpdateReviewRequest {
+  rating?: number;
   comment?: string;
-  created_at: string;
-  user?: User;
 }
 
 // API Response types

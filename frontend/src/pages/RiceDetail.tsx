@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { riceService } from '../services/riceService';
 import { userService } from '../services/userService';
-import type { Rice } from '../types';
+import { reviewService } from '../services/reviewService';
+import type { Rice, Review, GetReviewsParams, CreateReviewRequest } from '../types';
 import Header from '../components/Header';
+import ReviewForm from '../components/ReviewForm';
+import ReviewsList from '../components/ReviewsList';
 
 interface UserInfo {
   id: number;
@@ -16,12 +19,18 @@ export default function RiceDetail() {
   const navigate = useNavigate();
   const [rice, setRice] = useState<Rice | null>(null);
   const [user, setUser] = useState<UserInfo | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [sortBy, setSortBy] = useState<'recent' | 'helpful' | 'rating_high' | 'rating_low'>('recent');
+  const [hasMoreReviews, setHasMoreReviews] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (id) {
       loadRice(parseInt(id));
+      loadReviews(parseInt(id), { sort_by: sortBy });
     }
   }, [id]);
 
@@ -38,6 +47,75 @@ export default function RiceDetail() {
       setError('Failed to load rice details');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadReviews = async (
+    riceId: number,
+    params: GetReviewsParams = {},
+    append: boolean = false
+  ) => {
+    try {
+      setReviewsLoading(true);
+      const skip = append ? reviews.length : 0;
+      const reviewsData = await reviewService.getRiceReviews(riceId, {
+        ...params,
+        skip,
+        limit: 20,
+      });
+      
+      if (append) {
+        setReviews((prev) => [...prev, ...reviewsData]);
+      } else {
+        setReviews(reviewsData);
+      }
+      
+      // Check if there are more reviews to load
+      setHasMoreReviews(reviewsData.length === 20);
+    } catch (err) {
+      console.error('Failed to load reviews', err);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
+  const handleUpdateReview = (reviewId: number, updatedReview: Review) => {
+    setReviews((prev) => 
+      prev.map((r) => (r.id === reviewId ? updatedReview : r))
+    );
+    // Reload rice data to update average rating
+    if (id) loadRice(parseInt(id));
+  };
+
+  const handleDeleteReview = (reviewId: number) => {
+    setReviews((prev) => prev.filter((r) => r.id !== reviewId));
+    // Reload rice data to update review count and average rating
+    if (id) loadRice(parseInt(id));
+  };
+
+  const handleCreateReview = async (reviewData: CreateReviewRequest) => {
+    if (!id) return;
+    
+    const newReview = await reviewService.createReview(parseInt(id), reviewData);
+    
+    // Add new review to the beginning of the list
+    setReviews((prev) => [newReview, ...prev]);
+    setShowReviewForm(false);
+    
+    // Reload rice data to update review count and average rating
+    loadRice(parseInt(id));
+  };
+
+  const handleSortChange = (newSortBy: 'recent' | 'helpful' | 'rating_high' | 'rating_low') => {
+    setSortBy(newSortBy);
+    if (id) {
+      loadReviews(parseInt(id), { sort_by: newSortBy });
+    }
+  };
+
+  const handleLoadMore = () => {
+    if (id && !reviewsLoading) {
+      loadReviews(parseInt(id), { sort_by: sortBy }, true);
     }
   };
 
@@ -137,7 +215,7 @@ export default function RiceDetail() {
 
         {/* Themes */}
         {rice.themes && rice.themes.length > 0 && (
-          <div className="space-y-6">
+          <div className="space-y-6 mb-8">
             <h2 className="text-2xl font-bold text-gray-900">Themes</h2>
             
             {rice.themes.map((theme) => (
@@ -192,10 +270,45 @@ export default function RiceDetail() {
 
         {/* No Themes */}
         {(!rice.themes || rice.themes.length === 0) && (
-          <div className="bg-white rounded-lg shadow p-8 text-center">
+          <div className="bg-white rounded-lg shadow p-8 text-center mb-8">
             <p className="text-gray-500">No themes available for this rice yet.</p>
           </div>
         )}
+
+        {/* Reviews Section */}
+        <div className="space-y-6">
+          {/* Write Review Button */}
+          {!showReviewForm && (
+            <button
+              onClick={() => setShowReviewForm(true)}
+              className="w-full md:w-auto px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              Write a Review
+            </button>
+          )}
+
+          {/* Review Form */}
+          {showReviewForm && (
+            <ReviewForm
+              onSubmit={handleCreateReview}
+              onCancel={() => setShowReviewForm(false)}
+            />
+          )}
+
+          {/* Reviews List */}
+          <ReviewsList
+            reviews={reviews}
+            totalReviews={rice.reviews_count || 0}
+            onLoadMore={handleLoadMore}
+            hasMore={hasMoreReviews}
+            loading={reviewsLoading}
+            sortBy={sortBy}
+            onSortChange={handleSortChange}
+            currentUserId={user?.id}
+            onUpdateReview={handleUpdateReview}
+            onDeleteReview={handleDeleteReview}
+          />
+        </div>
       </main>
     </div>
   );

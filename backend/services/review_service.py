@@ -72,7 +72,7 @@ async def get_reviews_by_rice(
     sort_by: str = "recent"
 ) -> list[Review]:
     query = select(Review).options(
-        selectinload(Review.user)
+        selectinload(Review.user).selectinload(User.profiles)
     ).where(Review.rice_id == rice_id)
     
     if sort_by == "helpful":
