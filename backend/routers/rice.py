@@ -42,7 +42,7 @@ async def get_rice(
 async def get_all_rices(
     skip: int = Query(0, ge=0, description="Pagination offset"),
     limit: int = Query(20, ge=1, le=100, description="Items per page"),
-    sort_by: str = Query("recent", regex="^(recent|popular)$", description="Sort by"),
+    sort_by: str = Query("popular", regex="^(recent|popular)$", description="Sort by"),
     db: AsyncSession = Depends(get_db)
 ):
     rices, total = await rice_service.get_all_rice(

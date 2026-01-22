@@ -5,7 +5,7 @@ import { RiceCard, RiceCardSkeleton } from '../components/RiceCard';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Terminal, SearchX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Pagination,
   PaginationContent,
@@ -17,9 +17,11 @@ import {
 } from "@/components/ui/pagination";
 
 export default function Home() {
+  const [searchParams] = useSearchParams();
+  const sortBy = searchParams.get('sort') || 'popular';
   const [page, setPage] = useState(1);
   const limit = 16;
-  const { rices, totalPages, loading, error } = useRices(page, limit);
+  const { rices, totalPages, loading, error } = useRices(page, limit, sortBy);
   const navigate = useNavigate();
 
   const handlePageChange = (newPage: number) => {

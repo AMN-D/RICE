@@ -16,7 +16,7 @@ export default function SearchBar() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex-1 max-w-2xl mx-8">
+    <form onSubmit={handleSubmit} className="flex-1">
       <div className="relative flex items-center">
         <Input
           type="text"
