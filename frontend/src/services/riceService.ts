@@ -3,9 +3,14 @@ import type { Rice, RiceCreate, PaginatedResponse } from '../types';
 
 export const riceService = {
   // Get all rices
-  getAllRices: async (page = 1, limit = 20, sortBy = 'recent') => {
+  getAllRices: async (page = 1, limit = 20, sortBy = 'popular', sortOrder = 'desc') => {
     const response = await api.get<PaginatedResponse<Rice>>('/rices/', {
-      params: { skip: (page - 1) * limit, limit, sort_by: sortBy }
+      params: {
+        skip: (page - 1) * limit,
+        limit,
+        sort_by: sortBy,
+        sort_order: sortOrder
+      }
     });
     return response.data;
   },

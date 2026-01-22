@@ -19,9 +19,10 @@ import {
 export default function Home() {
   const [searchParams] = useSearchParams();
   const sortBy = searchParams.get('sort') || 'popular';
+  const sortOrder = searchParams.get('order') || 'desc';
   const [page, setPage] = useState(1);
   const limit = 16;
-  const { rices, totalPages, loading, error } = useRices(page, limit, sortBy);
+  const { rices, totalPages, loading, error } = useRices(page, limit, sortBy, sortOrder);
   const navigate = useNavigate();
 
   const handlePageChange = (newPage: number) => {

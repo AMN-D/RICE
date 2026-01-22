@@ -95,7 +95,8 @@ async def get_all_rice(
     db: AsyncSession,
     skip: int = 0,
     limit: int = 20,
-    sort_by: str = "recent"
+    sort_by: str = "recent",
+    sort_order: str = "desc"
 ) -> tuple[list[Rice], int]:
     base_query = select(Rice).where(Rice.is_deleted == False)
     
@@ -107,12 +108,18 @@ async def get_all_rice(
         selectinload(Rice.reviews)
     ).where(Rice.is_deleted == False)
 
+    is_asc = sort_order == "asc"
+
     if sort_by == "popular":
-        query = query.order_by(Rice.views.desc())
+        query = query.order_by(Rice.views.asc() if is_asc else Rice.views.desc())
+    elif sort_by == "top_rated":
+        avg_rating_col = func.avg(Review.rating)
+        order_clause = avg_rating_col.asc() if is_asc else avg_rating_col.desc()
+        query = query.outerjoin(Review).group_by(Rice.id).order_by(order_clause.nullslast(), Rice.date_added.desc())
     elif sort_by == "recent":
-        query = query.order_by(Rice.date_added.desc())
+        query = query.order_by(Rice.date_added.asc() if is_asc else Rice.date_added.desc())
     else:
-        query = query.order_by(Rice.date_added.desc())
+        query = query.order_by(Rice.date_added.asc() if is_asc else Rice.date_added.desc())
 
     query = query.offset(skip).limit(limit)
 

@@ -17,7 +17,7 @@ import {
   DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Plus, LogOut, User as UserIcon, LogIn, Sun, Moon, Monitor, ArrowUpDown } from 'lucide-react';
+import { Plus, LogOut, User as UserIcon, LogIn, Sun, Moon, Monitor, ArrowUp, ArrowDown } from 'lucide-react';
 import { useTheme } from '@/components/theme-provider';
 
 export default function Header() {
@@ -28,10 +28,17 @@ export default function Header() {
   const [showProfileModal, setShowProfileModal] = useState(false);
 
   const sortBy = searchParams.get('sort') || 'popular';
+  const sortOrder = searchParams.get('order') || 'desc';
 
   const handleSortChange = (newSort: string) => {
     const newParams = new URLSearchParams(searchParams);
     newParams.set('sort', newSort);
+    setSearchParams(newParams);
+  };
+
+  const toggleSortOrder = () => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('order', sortOrder === 'asc' ? 'desc' : 'asc');
     setSearchParams(newParams);
   };
 
@@ -52,24 +59,41 @@ export default function Header() {
           {/* Search Bar & Sort */}
           <div className="flex-1 flex items-center justify-center max-w-2xl gap-2">
             <SearchBar />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="hidden sm:flex gap-2 min-w-[100px] justify-between">
-                  <span className="capitalize">{sortBy}</span>
-                  <ArrowUpDown className="w-4 h-4 text-muted-foreground" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-32">
-                <DropdownMenuLabel>Sort By</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => handleSortChange('popular')} className="cursor-pointer">
-                  Popular
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleSortChange('recent')} className="cursor-pointer">
-                  Recent
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="flex items-center gap-1">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="hidden sm:flex gap-2 min-w-[110px] justify-between">
+                    <span className="capitalize">{sortBy.replace('_', ' ')}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-40">
+                  <DropdownMenuLabel>Sort By</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => handleSortChange('popular')} className="cursor-pointer">
+                    Popular
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleSortChange('top_rated')} className="cursor-pointer">
+                    Top Rated
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleSortChange('recent')} className="cursor-pointer">
+                    Recent
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button
+                variant="outline"
+                size="sm"
+                className="px-2"
+                onClick={toggleSortOrder}
+                title={sortOrder === 'asc' ? 'Switch to Descending' : 'Switch to Ascending'}
+              >
+                {sortOrder === 'asc' ? (
+                  <ArrowUp className="w-4 h-4" />
+                ) : (
+                  <ArrowDown className="w-4 h-4" />
+                )}
+              </Button>
+            </div>
           </div>
 
           {/* Actions */}
