@@ -22,7 +22,7 @@ export default function Home() {
             Explore Rices
           </h2>
           <p className="text-muted-foreground">
-            Discover and share the best Linux desktop configurations from the community.
+            Don't browse for too long or you'll end up rebuilding everything.
           </p>
         </div>
 

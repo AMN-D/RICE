@@ -27,15 +27,11 @@ export default function Header() {
         <div className="container flex h-16 items-center justify-between gap-4 max-w-7xl mx-auto px-4">
           {/* Logo/Title */}
           <div
-            className="flex items-center gap-2 cursor-pointer group transition-all"
+            className="flex items-center gap-2 cursor-pointer transition-all"
             onClick={() => navigate('/')}
           >
-            <div className="bg-primary p-1.5 rounded-lg group-hover:rotate-6 transition-transform">
-              <Layout className="w-6 h-6 text-primary-foreground" />
-            </div>
             <div className="hidden sm:block">
-              <h1 className="text-xl font-bold tracking-tight">Rice Showcase</h1>
-              <p className="text-xs text-muted-foreground -mt-1">Linux customizations</p>
+              <h1 className="text-3xl pacifico-regular tracking-normal">Rice</h1>
             </div>
           </div>
 
