@@ -23,7 +23,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full">
+      <header className="border-b bg-background sticky top-0 z-50 w-full">
         <div className="container flex h-16 items-center justify-between gap-4 max-w-7xl mx-auto px-4">
           {/* Logo/Title */}
           <div
