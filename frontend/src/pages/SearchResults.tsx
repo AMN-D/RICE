@@ -8,7 +8,7 @@ export default function SearchResults() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const query = searchParams.get('q') || '';
-  
+
   const [rices, setRices] = useState<Rice[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -23,7 +23,7 @@ export default function SearchResults() {
     try {
       setLoading(true);
       const data = await riceService.searchRices(searchQuery);
-      setRices(data);
+      setRices(data.items);
     } catch (err) {
       setError('Failed to search rices');
     } finally {
@@ -75,14 +75,14 @@ export default function SearchResults() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {rices.map((rice) => (
-              <article 
+              <article
                 key={rice.id}
                 onClick={() => navigate(`/rice/${rice.id}`)}
                 className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer bg-white"
               >
                 {rice.preview_image ? (
-                  <img 
-                    src={rice.preview_image} 
+                  <img
+                    src={rice.preview_image}
                     alt={rice.name}
                     className="aspect-video w-full object-cover"
                   />
@@ -91,12 +91,12 @@ export default function SearchResults() {
                     <span className="text-gray-400">No preview</span>
                   </div>
                 )}
-                
+
                 <div className="p-4">
                   <h2 className="text-xl font-semibold text-gray-900 mb-2">
                     {rice.name}
                   </h2>
-                  
+
                   <div className="flex items-center justify-between text-sm text-gray-500 mb-2">
                     <span>{rice.views} views</span>
                     {rice.avg_rating && (

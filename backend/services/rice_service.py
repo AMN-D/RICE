@@ -69,7 +69,14 @@ async def get_rice_by_user(
     skip: int = 0,
     limit: int = 20,
     include_deleted: bool = False
-) -> list[Rice]:
+) -> tuple[list[Rice], int]:
+    base_query = select(Rice).where(Rice.user_id == user_id)
+    if not include_deleted:
+        base_query = base_query.where(Rice.is_deleted == False)
+
+    # Count total
+    total_count = await db.scalar(select(func.count()).select_from(base_query.subquery()))
+
     query = select(Rice).options(
         selectinload(Rice.themes).selectinload(Theme.media),
         selectinload(Rice.reviews)
@@ -80,14 +87,21 @@ async def get_rice_by_user(
 
     query = query.offset(skip).limit(limit).order_by(Rice.date_added.desc())
     result = await db.execute(query)
-    return result.scalars().all()
+    items = result.scalars().all()
+    
+    return items, total_count or 0
 
 async def get_all_rice(
     db: AsyncSession,
     skip: int = 0,
     limit: int = 20,
     sort_by: str = "recent"
-) -> list[Rice]:
+) -> tuple[list[Rice], int]:
+    base_query = select(Rice).where(Rice.is_deleted == False)
+    
+    # Count total
+    total_count = await db.scalar(select(func.count()).select_from(base_query.subquery()))
+
     query = select(Rice).options(
         selectinload(Rice.themes).selectinload(Theme.media),
         selectinload(Rice.reviews)
@@ -103,15 +117,29 @@ async def get_all_rice(
     query = query.offset(skip).limit(limit)
 
     result = await db.execute(query)
-    return result.scalars().all()
+    items = result.scalars().all()
+    return items, total_count or 0
 
 async def search_rices(
     db: AsyncSession,
     search_query: str,
     skip: int = 0,
     limit: int = 20
-) -> list[Rice]:
+) -> tuple[list[Rice], int]:
     search_pattern = f"%{search_query}%"
+
+    base_query = select(Rice).join(Theme).where(
+        and_(
+            Rice.is_deleted == False,
+            (
+                Rice.name.ilike(search_pattern) |
+                Theme.tags.ilike(search_pattern)
+            )
+        )
+    ).distinct()
+
+    # Count total
+    total_count = await db.scalar(select(func.count()).select_from(base_query.subquery()))
 
     query = select(Rice).options(
         selectinload(Rice.themes).selectinload(Theme.media),
@@ -128,7 +156,8 @@ async def search_rices(
 
     query = query.offset(skip).limit(limit)
     result = await db.execute(query)
-    return result.scalars().all()
+    items = result.scalars().all()
+    return items, total_count or 0
 
 async def update_rice(
     db: AsyncSession,

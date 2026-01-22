@@ -1,11 +1,11 @@
 import { api } from './api';
-import type { Rice, RiceCreate } from '../types';
+import type { Rice, RiceCreate, PaginatedResponse } from '../types';
 
 export const riceService = {
   // Get all rices
-  getAllRices: async (page = 1, size = 20, sortBy = 'recent') => {
-    const response = await api.get<Rice[]>('/rices/', {
-      params: { skip: (page - 1) * size, limit: size, sort_by: sortBy }
+  getAllRices: async (page = 1, limit = 20, sortBy = 'recent') => {
+    const response = await api.get<PaginatedResponse<Rice>>('/rices/', {
+      params: { skip: (page - 1) * limit, limit, sort_by: sortBy }
     });
     return response.data;
   },
@@ -23,17 +23,17 @@ export const riceService = {
   },
 
   // Search rices
-  searchRices: async (query: string, page = 1, size = 20) => {
-    const response = await api.get<Rice[]>('/rices/search/', {
-      params: { q: query, skip: (page - 1) * size, limit: size }
+  searchRices: async (query: string, page = 1, limit = 20) => {
+    const response = await api.get<PaginatedResponse<Rice>>('/rices/search/', {
+      params: { q: query, skip: (page - 1) * limit, limit }
     });
     return response.data;
   },
 
   // Get my rices
-  getMyRices: async (includeDeleted = false) => {
-    const response = await api.get<Rice[]>('/rices/user/me/rices', {
-      params: { include_deleted: includeDeleted }
+  getMyRices: async (page = 1, limit = 20, includeDeleted = false) => {
+    const response = await api.get<PaginatedResponse<Rice>>('/rices/user/me/rices', {
+      params: { skip: (page - 1) * limit, limit, include_deleted: includeDeleted }
     });
     return response.data;
   },

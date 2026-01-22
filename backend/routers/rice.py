@@ -4,13 +4,15 @@ from db.session import get_db
 from services.jwt_service import get_current_user
 from services import rice_service
 from schemas.rice import (
-    RiceCreate, 
+    RiceCreate,
     RiceUpdate, 
     RiceOut, 
     RiceOutSimple,
-    RiceOutWithThemes
+    RiceOutWithThemes,
+    RicePaginationOut
 )
-from typing import List
+from typing import List, Dict, Any
+import math
 
 router = APIRouter(prefix="/rices", tags=["rices"])
 
@@ -36,37 +38,50 @@ async def get_rice(
     await rice_service.increment_rice_views(db, rice_id)
     return rice
 
-@router.get("/", response_model=List[RiceOutSimple])
+@router.get("/", response_model=RicePaginationOut)
 async def get_all_rices(
     skip: int = Query(0, ge=0, description="Pagination offset"),
     limit: int = Query(20, ge=1, le=100, description="Items per page"),
     sort_by: str = Query("recent", regex="^(recent|popular)$", description="Sort by"),
     db: AsyncSession = Depends(get_db)
 ):
-    rices = await rice_service.get_all_rice(
+    rices, total = await rice_service.get_all_rice(
         db=db,
         skip=skip,
         limit=limit,
         sort_by=sort_by
     )
-    return rices
+    
+    return RicePaginationOut(
+        items=rices,
+        total=total,
+        page=(skip // limit) + 1,
+        limit=limit,
+        total_pages=math.ceil(total / limit) if total > 0 else 0
+    )
 
-@router.get("/user/{user_id}", response_model=List[RiceOutWithThemes])
+@router.get("/user/{user_id}", response_model=RicePaginationOut)
 async def get_user_rices(
     user_id: int,
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db)
 ):
-    rices = await rice_service.get_rice_by_user(
+    rices, total = await rice_service.get_rice_by_user(
         db=db,
         user_id=user_id,
         skip=skip,
         limit=limit
     )
-    return rices
+    return RicePaginationOut(
+        items=rices,
+        total=total,
+        page=(skip // limit) + 1,
+        limit=limit,
+        total_pages=math.ceil(total / limit) if total > 0 else 1
+    )
 
-@router.get("/user/me/rices", response_model=List[RiceOutWithThemes])
+@router.get("/user/me/rices", response_model=RicePaginationOut)
 async def get_my_rices(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
@@ -74,29 +89,41 @@ async def get_my_rices(
     db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user)
 ):
-    rices = await rice_service.get_rice_by_user(
+    rices, total = await rice_service.get_rice_by_user(
         db=db,
         user_id=user_id,
         skip=skip,
         limit=limit,
         include_deleted=include_deleted
     )
-    return rices
+    return RicePaginationOut(
+        items=rices,
+        total=total,
+        page=(skip // limit) + 1,
+        limit=limit,
+        total_pages=math.ceil(total / limit) if total > 0 else 0
+    )
 
-@router.get("/search/", response_model=List[RiceOutSimple])
+@router.get("/search/", response_model=RicePaginationOut)
 async def search_rices(
     q: str = Query(..., min_length=1, description="Search query"),
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db)
 ):
-    rices = await rice_service.search_rices(
+    rices, total = await rice_service.search_rices(
         db=db,
         search_query=q,
         skip=skip,
         limit=limit
     )
-    return rices
+    return RicePaginationOut(
+        items=rices,
+        total=total,
+        page=(skip // limit) + 1,
+        limit=limit,
+        total_pages=math.ceil(total / limit) if total > 0 else 0
+    )
 
 @router.get("/{rice_id}/stats")
 async def get_rice_stats(

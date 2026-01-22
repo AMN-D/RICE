@@ -51,3 +51,9 @@ class RiceOutWithThemes(RiceOutSimple):
 
   class Config:
     from_attributes = True
+class RicePaginationOut(BaseModel):
+  items: list[RiceOutSimple]
+  total: int
+  page: int
+  limit: int
+  total_pages: int

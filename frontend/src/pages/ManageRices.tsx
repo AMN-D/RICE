@@ -19,7 +19,7 @@ export default function ManageRices() {
     try {
       setLoading(true);
       const data = await riceService.getMyRices();
-      setRices(data);
+      setRices(data.items);
     } catch (err) {
       setError('Failed to load your rices');
     } finally {
