@@ -21,6 +21,31 @@ class Rice(Base):
     themes = relationship("Theme", back_populates="rice", cascade="all, delete-orphan")
     reviews = relationship("Review", back_populates="rice", cascade="all, delete-orphan")
 
+    @property
+    def themes_count(self) -> int:
+        return len(self.themes)
+
+    @property
+    def reviews_count(self) -> int:
+        return len(self.reviews)
+
+    @property
+    def avg_rating(self) -> float | None:
+        if not self.reviews:
+            return None
+        return sum(r.rating for r in self.reviews) / len(self.reviews)
+
+    @property
+    def preview_image(self) -> str | None:
+        if not self.themes:
+            return None
+        # Get first theme's first image (prefer thumbnail)
+        for theme in sorted(self.themes, key=lambda t: t.display_order):
+            for media in sorted(theme.media, key=lambda m: m.display_order):
+                if media.media_type.value == "IMAGE":
+                    return media.thumbnail_url or media.url
+        return None
+
 class Theme(Base):
     __tablename__ = "themes"
 

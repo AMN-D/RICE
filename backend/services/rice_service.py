@@ -71,7 +71,8 @@ async def get_rice_by_user(
     include_deleted: bool = False
 ) -> list[Rice]:
     query = select(Rice).options(
-        selectinload(Rice.themes).selectinload(Theme.media)
+        selectinload(Rice.themes).selectinload(Theme.media),
+        selectinload(Rice.reviews)
     ).where(Rice.user_id == user_id)
 
     if not include_deleted:
@@ -88,7 +89,8 @@ async def get_all_rice(
     sort_by: str = "recent"
 ) -> list[Rice]:
     query = select(Rice).options(
-        selectinload(Rice.themes).selectinload(Theme.media)
+        selectinload(Rice.themes).selectinload(Theme.media),
+        selectinload(Rice.reviews)
     ).where(Rice.is_deleted == False)
 
     if sort_by == "popular":
@@ -112,7 +114,8 @@ async def search_rices(
     search_pattern = f"%{search_query}%"
 
     query = select(Rice).options(
-        selectinload(Rice.themes).selectinload(Theme.media)
+        selectinload(Rice.themes).selectinload(Theme.media),
+        selectinload(Rice.reviews)
     ).join(Theme).where(
         and_(
             Rice.is_deleted == False,

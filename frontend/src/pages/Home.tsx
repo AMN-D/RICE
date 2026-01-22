@@ -35,9 +35,9 @@ export default function Home() {
         )}
 
         {/* Rice Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {loading ? (
-            Array.from({ length: 6 }).map((_, i) => <RiceCardSkeleton key={i} />)
+            Array.from({ length: 8 }).map((_, i) => <RiceCardSkeleton key={i} />)
           ) : (
             rices.map((rice) => (
               <RiceCard key={rice.id} rice={rice} />
