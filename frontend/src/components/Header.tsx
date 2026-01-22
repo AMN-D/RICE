@@ -11,13 +11,18 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Plus, LogOut, User as UserIcon, Layout, LogIn } from 'lucide-react';
-import { ModeToggle } from './mode-toggle';
+import { Plus, LogOut, User as UserIcon, LogIn, Sun, Moon, Monitor } from 'lucide-react';
+import { useTheme } from '@/components/theme-provider';
 
 export default function Header() {
   const { user, loading, login, logout } = useAuth();
+  const { setTheme } = useTheme();
   const navigate = useNavigate();
   const [showProfileModal, setShowProfileModal] = useState(false);
 
@@ -44,15 +49,6 @@ export default function Header() {
               <div className="w-10 h-10 rounded-full bg-muted animate-pulse" />
             ) : user ? (
               <>
-                <Button
-                  onClick={() => navigate('/create')}
-                  size="sm"
-                  className="hidden md:flex gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  Create Rice
-                </Button>
-
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0 overflow-hidden ring-offset-background transition-colors hover:ring-2 hover:ring-ring hover:ring-offset-2">
@@ -72,14 +68,43 @@ export default function Header() {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
+
+                    <DropdownMenuItem onClick={() => navigate('/create')} className="cursor-pointer">
+                      <Plus className="mr-2 h-4 w-4" />
+                      <span>Create Rice</span>
+                    </DropdownMenuItem>
+
                     <DropdownMenuItem onClick={() => setShowProfileModal(true)} className="cursor-pointer">
                       <UserIcon className="mr-2 h-4 w-4" />
                       <span>Edit Profile</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/create')} className="md:hidden cursor-pointer">
-                      <Plus className="mr-2 h-4 w-4" />
-                      <span>Create Rice</span>
-                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger className="cursor-pointer">
+                        <Sun className="mr-2 h-4 w-4 dark:hidden" />
+                        <Moon className="mr-2 h-4 w-4 hidden dark:block" />
+                        <span>Theme</span>
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuPortal>
+                        <DropdownMenuSubContent>
+                          <DropdownMenuItem onClick={() => setTheme("light")} className="cursor-pointer">
+                            <Sun className="mr-2 h-4 w-4" />
+                            <span>Light</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setTheme("dark")} className="cursor-pointer">
+                            <Moon className="mr-2 h-4 w-4" />
+                            <span>Dark</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setTheme("system")} className="cursor-pointer">
+                            <Monitor className="mr-2 h-4 w-4" />
+                            <span>System</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuSubContent>
+                      </DropdownMenuPortal>
+                    </DropdownMenuSub>
+
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={logout} className="text-destructive focus:text-destructive cursor-pointer">
                       <LogOut className="mr-2 h-4 w-4" />
@@ -89,12 +114,34 @@ export default function Header() {
                 </DropdownMenu>
               </>
             ) : (
-              <Button onClick={login} variant="default" className="gap-2">
-                <LogIn className="w-4 h-4" />
-                Login
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button onClick={login} variant="default" className="gap-2">
+                  <LogIn className="w-4 h-4" />
+                  Login
+                </Button>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon">
+                      <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                      <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                      <span className="sr-only">Toggle theme</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => setTheme("light")} className="cursor-pointer">
+                      Light
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setTheme("dark")} className="cursor-pointer">
+                      Dark
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setTheme("system")} className="cursor-pointer">
+                      System
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             )}
-            <ModeToggle />
           </div>
         </div>
       </header>
