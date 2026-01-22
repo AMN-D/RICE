@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
+import { ThemeProvider } from './components/theme-provider';
 import Home from './pages/Home';
 import CompleteProfile from './pages/CompleteProfile';
 import CreateRice from './pages/CreateRice';
@@ -38,11 +39,13 @@ function ProtectedRoutes() {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <ProtectedRoutes />
-      </Router>
-    </AuthProvider>
+    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+      <AuthProvider>
+        <Router>
+          <ProtectedRoutes />
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

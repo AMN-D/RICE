@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Plus, LogOut, User as UserIcon, Layout, LogIn } from 'lucide-react';
+import { ModeToggle } from './mode-toggle';
 
 export default function Header() {
   const { user, loading, login, logout } = useAuth();
@@ -97,6 +98,7 @@ export default function Header() {
                 Login
               </Button>
             )}
+            <ModeToggle />
           </div>
         </div>
       </header>
