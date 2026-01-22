@@ -19,6 +19,12 @@ export const themeService = {
     return response.data;
   },
 
+  // Get a single theme by ID
+  getTheme: async (themeId: number) => {
+    const response = await api.get<Theme>(`/themes/${themeId}`);
+    return response.data;
+  },
+
   // Add theme to rice
   addTheme: async (riceId: number, data: ThemeCreate) => {
     const response = await api.post<Theme>(`/themes/rice/${riceId}`, data);

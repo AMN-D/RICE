@@ -35,5 +35,31 @@ export const reviewService = {
     );
     return response.data;
   },
+
+  // Get my review for a specific rice
+  getMyReviewForRice: async (riceId: number): Promise<Review> => {
+    const response = await api.get(`/reviews/rice/${riceId}/me`);
+    return response.data;
+  },
+
+  // Get all my reviews
+  getMyReviews: async (skip = 0, limit = 20): Promise<Review[]> => {
+    const response = await api.get('/reviews/user/me', {
+      params: { skip, limit }
+    });
+    return response.data;
+  },
+
+  // Get review stats for a rice
+  getReviewStats: async (riceId: number) => {
+    const response = await api.get(`/reviews/rice/${riceId}/stats`);
+    return response.data;
+  },
+
+  // Mark a review as helpful
+  markReviewHelpful: async (reviewId: number): Promise<Review> => {
+    const response = await api.post(`/reviews/${reviewId}/helpful`);
+    return response.data;
+  },
 };
 
