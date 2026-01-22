@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { riceService } from '../services/riceService';
+import { imageUploadService } from '../services/imageUploadService';
 import type { RiceCreate, ThemeCreate, MediaCreate } from '../types';
 import Header from '../components/Header';
 
@@ -8,7 +9,8 @@ export default function CreateRice() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  
+  const [uploadingMedia, setUploadingMedia] = useState<string | null>(null); // "themeIndex-mediaIndex"
+
   const [riceName, setRiceName] = useState('');
   const [dotfileUrl, setDotfileUrl] = useState('');
   const [themes, setThemes] = useState<ThemeCreate[]>([
@@ -46,7 +48,7 @@ export default function CreateRice() {
 
   const addMedia = (themeIndex: number) => {
     const updated = [...themes];
-    const currentMedia = updated[themeIndex].media;
+    const currentMedia = updated[themeIndex].media || [];
     updated[themeIndex].media = [
       ...currentMedia,
       { url: '', media_type: 'IMAGE', display_order: currentMedia.length }
@@ -56,17 +58,37 @@ export default function CreateRice() {
 
   const removeMedia = (themeIndex: number, mediaIndex: number) => {
     const updated = [...themes];
-    updated[themeIndex].media = updated[themeIndex].media.filter((_, i) => i !== mediaIndex);
+    const currentMedia = updated[themeIndex].media || [];
+    updated[themeIndex].media = currentMedia.filter((_, i) => i !== mediaIndex);
     setThemes(updated);
   };
 
   const updateMedia = (themeIndex: number, mediaIndex: number, field: keyof MediaCreate, value: any) => {
     const updated = [...themes];
-    updated[themeIndex].media[mediaIndex] = {
-      ...updated[themeIndex].media[mediaIndex],
-      [field]: value
-    };
-    setThemes(updated);
+    const media = updated[themeIndex].media;
+    if (media && media[mediaIndex]) {
+      media[mediaIndex] = {
+        ...media[mediaIndex],
+        [field]: value
+      };
+      setThemes(updated);
+    }
+  };
+
+  const handleFileUpload = async (themeIndex: number, mediaIndex: number, file: File) => {
+    const uploadKey = `${themeIndex}-${mediaIndex}`;
+    setUploadingMedia(uploadKey);
+    setError('');
+
+    try {
+      const result = await imageUploadService.uploadImage(file);
+      updateMedia(themeIndex, mediaIndex, 'url', result.url);
+      updateMedia(themeIndex, mediaIndex, 'thumbnail_url', result.thumbnailUrl);
+    } catch (err: any) {
+      setError(err.message || 'Failed to upload image');
+    } finally {
+      setUploadingMedia(null);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -104,7 +126,7 @@ export default function CreateRice() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
+
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="bg-white rounded-lg shadow-lg p-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-6">Create New Rice</h1>
@@ -119,7 +141,7 @@ export default function CreateRice() {
             {/* Basic Info */}
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-gray-900">Basic Information</h2>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Rice Name <span className="text-red-500">*</span>
@@ -223,11 +245,11 @@ export default function CreateRice() {
                       </button>
                     </div>
 
-                    {theme.media.map((media, mediaIndex) => (
+                    {(theme.media || []).map((media, mediaIndex) => (
                       <div key={mediaIndex} className="bg-gray-50 p-4 rounded-lg space-y-3">
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-medium text-gray-700">Media {mediaIndex + 1}</span>
-                          {theme.media.length > 1 && (
+                          {(theme.media?.length || 0) > 1 && (
                             <button
                               type="button"
                               onClick={() => removeMedia(themeIndex, mediaIndex)}
@@ -239,14 +261,40 @@ export default function CreateRice() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Media URL</label>
-                          <input
-                            type="url"
-                            value={media.url}
-                            onChange={(e) => updateMedia(themeIndex, mediaIndex, 'url', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-800"
-                            placeholder="https://example.com/image.png"
-                          />
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Media URL or Upload</label>
+                          <div className="flex gap-2">
+                            <input
+                              type="url"
+                              value={media.url}
+                              onChange={(e) => updateMedia(themeIndex, mediaIndex, 'url', e.target.value)}
+                              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-800"
+                              placeholder="https://example.com/image.png"
+                            />
+                            <label className={`px-3 py-2 rounded-lg text-sm cursor-pointer transition-colors ${uploadingMedia === `${themeIndex}-${mediaIndex}`
+                              ? 'bg-gray-400 text-white cursor-wait'
+                              : 'bg-blue-600 text-white hover:bg-blue-700'
+                              }`}>
+                              {uploadingMedia === `${themeIndex}-${mediaIndex}` ? 'Uploading...' : 'Upload'}
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                disabled={uploadingMedia === `${themeIndex}-${mediaIndex}`}
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) handleFileUpload(themeIndex, mediaIndex, file);
+                                }}
+                              />
+                            </label>
+                          </div>
+                          {media.url && (
+                            <img
+                              src={media.url}
+                              alt="Preview"
+                              className="mt-2 w-full h-32 object-cover rounded-lg border"
+                              onError={(e) => (e.currentTarget.style.display = 'none')}
+                            />
+                          )}
                         </div>
 
                         <div className="grid grid-cols-2 gap-3">

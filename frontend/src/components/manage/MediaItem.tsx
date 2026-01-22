@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Media } from '../../types';
+import { imageUploadService } from '../../services/imageUploadService';
 
 interface MediaItemProps {
   media: Media[];
@@ -10,6 +11,7 @@ interface MediaItemProps {
 
 export default function MediaItem({ media, themeId, onUpdate, onError }: MediaItemProps) {
   const [addingMedia, setAddingMedia] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [newMediaForm, setNewMediaForm] = useState({
     url: '',
     media_type: 'IMAGE' as 'IMAGE' | 'VIDEO',
@@ -22,6 +24,22 @@ export default function MediaItem({ media, themeId, onUpdate, onError }: MediaIt
     display_order: 0,
     thumbnail_url: ''
   });
+
+  const handleFileUpload = async (file: File) => {
+    setUploading(true);
+    try {
+      const result = await imageUploadService.uploadImage(file);
+      setNewMediaForm(prev => ({
+        ...prev,
+        url: result.url,
+        thumbnail_url: result.thumbnailUrl
+      }));
+    } catch (err: any) {
+      onError(err.message || 'Failed to upload image');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleAddMedia = async () => {
     try {
@@ -75,7 +93,7 @@ export default function MediaItem({ media, themeId, onUpdate, onError }: MediaIt
   const handleMoveMedia = async (mediaId: number, direction: 'up' | 'down') => {
     const currentIndex = media.findIndex(m => m.id === mediaId);
     if (currentIndex === -1) return;
-    
+
     const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
     if (newIndex < 0 || newIndex >= media.length) return;
 
@@ -124,14 +142,40 @@ export default function MediaItem({ media, themeId, onUpdate, onError }: MediaIt
           <h6 className="text-xs font-semibold text-gray-900 mb-2">Add New Media</h6>
           <div className="space-y-2">
             <div>
-              <label className="block text-xs text-gray-700 mb-1">Media URL *</label>
-              <input
-                type="url"
-                value={newMediaForm.url}
-                onChange={(e) => setNewMediaForm({ ...newMediaForm, url: e.target.value })}
-                className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
-                placeholder="https://example.com/image.jpg"
-              />
+              <label className="block text-xs text-gray-700 mb-1">Media URL or Upload *</label>
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={newMediaForm.url}
+                  onChange={(e) => setNewMediaForm({ ...newMediaForm, url: e.target.value })}
+                  className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs"
+                  placeholder="https://example.com/image.jpg"
+                />
+                <label className={`px-2 py-1 rounded text-xs cursor-pointer transition-colors ${uploading
+                    ? 'bg-gray-400 text-white cursor-wait'
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                  }`}>
+                  {uploading ? 'Uploading...' : 'Upload'}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    disabled={uploading}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFileUpload(file);
+                    }}
+                  />
+                </label>
+              </div>
+              {newMediaForm.url && (
+                <img
+                  src={newMediaForm.url}
+                  alt="Preview"
+                  className="mt-2 w-full h-24 object-cover rounded border"
+                  onError={(e) => (e.currentTarget.style.display = 'none')}
+                />
+              )}
             </div>
             <div>
               <label className="block text-xs text-gray-700 mb-1">Media Type *</label>
