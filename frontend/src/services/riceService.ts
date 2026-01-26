@@ -3,13 +3,14 @@ import type { Rice, RiceCreate, PaginatedResponse } from '../types';
 
 export const riceService = {
   // Get all rices
-  getAllRices: async (page = 1, limit = 20, sortBy = 'popular', sortOrder = 'desc') => {
+  getAllRices: async (page = 1, limit = 20, sortBy = 'popular', sortOrder = 'desc', q = '') => {
     const response = await api.get<PaginatedResponse<Rice>>('/rices/', {
       params: {
         skip: (page - 1) * limit,
         limit,
         sort_by: sortBy,
-        sort_order: sortOrder
+        sort_order: sortOrder,
+        q: q || undefined
       }
     });
     return response.data;
@@ -27,13 +28,6 @@ export const riceService = {
     return response.data;
   },
 
-  // Search rices
-  searchRices: async (query: string, page = 1, limit = 20) => {
-    const response = await api.get<PaginatedResponse<Rice>>('/rices/search/', {
-      params: { q: query, skip: (page - 1) * limit, limit }
-    });
-    return response.data;
-  },
 
   // Get my rices
   getMyRices: async (page = 1, limit = 20, includeDeleted = false) => {

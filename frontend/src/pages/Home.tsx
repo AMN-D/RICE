@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRices } from '../hooks/useRices';
 import Header from '../components/Header';
 import { RiceCard, RiceCardSkeleton } from '../components/RiceCard';
@@ -20,10 +20,17 @@ export default function Home() {
   const [searchParams] = useSearchParams();
   const sortBy = searchParams.get('sort') || 'popular';
   const sortOrder = searchParams.get('order') || 'desc';
+  const query = searchParams.get('q') || '';
+
   const [page, setPage] = useState(1);
   const limit = 16;
-  const { rices, totalPages, loading, error } = useRices(page, limit, sortBy, sortOrder);
+  const { rices, total, totalPages, loading, error } = useRices(page, limit, sortBy, sortOrder, query);
   const navigate = useNavigate();
+
+  // Reset page to 1 when search or sort changes
+  useEffect(() => {
+    setPage(1);
+  }, [sortBy, sortOrder, query]);
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -91,10 +98,13 @@ export default function Home() {
         <div className="mb-8 space-y-2">
           <h2 className="text-3xl font-extrabold tracking-tight flex items-center gap-2">
             <Terminal className="w-8 h-8 text-primary" />
-            Explore Rices
+            {query ? `Search Results for "${query}"` : 'Explore Rices'}
           </h2>
           <p className="text-muted-foreground">
-            Don't browse for too long or you'll end up rebuilding everything.
+            {query
+              ? `Found ${total} result${total !== 1 ? 's' : ''} matching your criteria.`
+              : "Don't browse for too long or you'll end up rebuilding everything."
+            }
           </p>
         </div>
 

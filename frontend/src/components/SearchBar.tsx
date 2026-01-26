@@ -1,18 +1,33 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
 
 export default function SearchBar() {
-  const [query, setQuery] = useState('');
+  const [searchParams] = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get('q') || '');
   const navigate = useNavigate();
+
+  // Update input if URL changes externally
+  useEffect(() => {
+    setQuery(searchParams.get('q') || '');
+  }, [searchParams]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const newParams = new URLSearchParams(searchParams);
+
     if (query.trim()) {
-      navigate(`/search?q=${encodeURIComponent(query.trim())}`);
+      newParams.set('q', query.trim());
+    } else {
+      newParams.delete('q');
     }
+
+    // Always go back to page 1 on new search
+    newParams.delete('page');
+
+    navigate(`/?${newParams.toString()}`);
   };
 
   return (

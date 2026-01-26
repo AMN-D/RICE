@@ -96,9 +96,16 @@ async def get_all_rice(
     skip: int = 0,
     limit: int = 20,
     sort_by: str = "recent",
-    sort_order: str = "desc"
+    sort_order: str = "desc",
+    q: Optional[str] = None
 ) -> tuple[list[Rice], int]:
     base_query = select(Rice).where(Rice.is_deleted == False)
+    
+    if q:
+        search_pattern = f"%{q}%"
+        base_query = base_query.join(Theme).where(
+            (Rice.name.ilike(search_pattern) | Theme.tags.ilike(search_pattern))
+        ).group_by(Rice.id)
     
     # Count total
     total_count = await db.scalar(select(func.count()).select_from(base_query.subquery()))
@@ -107,6 +114,12 @@ async def get_all_rice(
         selectinload(Rice.themes).selectinload(Theme.media),
         selectinload(Rice.reviews)
     ).where(Rice.is_deleted == False)
+    
+    if q:
+        search_pattern = f"%{q}%"
+        query = query.join(Theme).where(
+            (Rice.name.ilike(search_pattern) | Theme.tags.ilike(search_pattern))
+        ).group_by(Rice.id)
 
     is_asc = sort_order == "asc"
 
@@ -115,7 +128,10 @@ async def get_all_rice(
     elif sort_by == "top_rated":
         avg_rating_col = func.avg(Review.rating)
         order_clause = avg_rating_col.asc() if is_asc else avg_rating_col.desc()
-        query = query.outerjoin(Review).group_by(Rice.id).order_by(order_clause.nullslast(), Rice.date_added.desc())
+        query = query.outerjoin(Review)
+        if not q:
+            query = query.group_by(Rice.id)
+        query = query.order_by(order_clause.nullslast(), Rice.date_added.desc())
     elif sort_by == "recent":
         query = query.order_by(Rice.date_added.asc() if is_asc else Rice.date_added.desc())
     else:
@@ -127,44 +143,6 @@ async def get_all_rice(
     items = result.scalars().all()
     return items, total_count or 0
 
-async def search_rices(
-    db: AsyncSession,
-    search_query: str,
-    skip: int = 0,
-    limit: int = 20
-) -> tuple[list[Rice], int]:
-    search_pattern = f"%{search_query}%"
-
-    base_query = select(Rice).join(Theme).where(
-        and_(
-            Rice.is_deleted == False,
-            (
-                Rice.name.ilike(search_pattern) |
-                Theme.tags.ilike(search_pattern)
-            )
-        )
-    ).distinct()
-
-    # Count total
-    total_count = await db.scalar(select(func.count()).select_from(base_query.subquery()))
-
-    query = select(Rice).options(
-        selectinload(Rice.themes).selectinload(Theme.media),
-        selectinload(Rice.reviews)
-    ).join(Theme).where(
-        and_(
-            Rice.is_deleted == False,
-            (
-                Rice.name.ilike(search_pattern) |
-                Theme.tags.ilike(search_pattern)
-            )
-        )
-    ).distinct()
-
-    query = query.offset(skip).limit(limit)
-    result = await db.execute(query)
-    items = result.scalars().all()
-    return items, total_count or 0
 
 async def update_rice(
     db: AsyncSession,
