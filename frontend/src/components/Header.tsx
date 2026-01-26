@@ -16,6 +16,13 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Plus, LogOut, User as UserIcon, LogIn, Sun, Moon, Monitor, ArrowUp, ArrowDown } from 'lucide-react';
 import { useTheme } from '@/components/theme-provider';
@@ -59,31 +66,21 @@ export default function Header() {
           {/* Search Bar & Sort */}
           <div className="flex-1 flex items-center justify-center max-w-2xl gap-2">
             <SearchBar />
-            <div className="flex items-center gap-1">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="hidden sm:flex gap-2 min-w-[110px] justify-between">
-                    <span className="capitalize">{sortBy.replace('_', ' ')}</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-40">
-                  <DropdownMenuLabel>Sort By</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => handleSortChange('popular')} className="cursor-pointer">
-                    Popular
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleSortChange('top_rated')} className="cursor-pointer">
-                    Top Rated
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleSortChange('recent')} className="cursor-pointer">
-                    Recent
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+            <div className="flex items-center -space-x-px">
+              <Select value={sortBy} onValueChange={handleSortChange}>
+                <SelectTrigger className="w-[130px] h-9 rounded-r-none border-r-0 focus:ring-0 focus:ring-offset-0 bg-background">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="popular">Popular</SelectItem>
+                  <SelectItem value="top_rated">Top Rated</SelectItem>
+                  <SelectItem value="recent">Recent</SelectItem>
+                </SelectContent>
+              </Select>
               <Button
                 variant="outline"
                 size="sm"
-                className="px-2"
+                className="h-9 px-3 rounded-l-none bg-background hover:bg-accent"
                 onClick={toggleSortOrder}
                 title={sortOrder === 'asc' ? 'Switch to Descending' : 'Switch to Ascending'}
               >
