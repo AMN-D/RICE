@@ -40,12 +40,14 @@ export default function Header() {
   const handleSortChange = (newSort: string) => {
     const newParams = new URLSearchParams(searchParams);
     newParams.set('sort', newSort);
+    newParams.delete('page');
     setSearchParams(newParams);
   };
 
   const toggleSortOrder = () => {
     const newParams = new URLSearchParams(searchParams);
     newParams.set('order', sortOrder === 'asc' ? 'desc' : 'asc');
+    newParams.delete('page');
     setSearchParams(newParams);
   };
 
