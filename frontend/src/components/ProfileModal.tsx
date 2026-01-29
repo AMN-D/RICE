@@ -16,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Github, User as UserIcon, Settings, Trash2, Layout } from 'lucide-react';
+import { TypographyH3, TypographyP, TypographySmall, TypographyMuted, TypographyInlineCode } from '@/components/ui/typography';
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -91,14 +92,18 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Settings className="w-5 h-5" />
-            {isEditing ? 'Edit Profile' : 'My Profile'}
+            <TypographySmall className="font-semibold text-base">
+              {isEditing ? 'Edit Profile' : 'My Profile'}
+            </TypographySmall>
           </DialogTitle>
         </DialogHeader>
 
         {error && (
           <Alert variant="destructive" className="my-2">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
+            <AlertDescription>
+              <TypographySmall>{error}</TypographySmall>
+            </AlertDescription>
           </Alert>
         )}
 
@@ -158,7 +163,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                   Cancel
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? 'Saving...' : 'Save Changes'}
+                  <TypographySmall>{loading ? 'Saving...' : 'Save Changes'}</TypographySmall>
                 </Button>
               </DialogFooter>
             </form>
@@ -170,16 +175,18 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                   <AvatarFallback className="text-2xl">{user.username?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
                 </Avatar>
                 <div className="text-center">
-                  <h3 className="text-2xl font-bold">{user.username}</h3>
-                  <p className="text-sm text-muted-foreground">{user.email || 'Rice Enthusiast'}</p>
+                  <TypographyH3>{user.username}</TypographyH3>
+                  <TypographyMuted>{user.email || 'Rice Enthusiast'}</TypographyMuted>
                 </div>
               </div>
 
               <div className="space-y-4">
                 {user.bio && (
                   <div className="bg-muted/50 p-3 rounded-lg">
-                    <Label className="text-xs uppercase text-muted-foreground">Bio</Label>
-                    <p className="text-sm mt-1">{user.bio}</p>
+                    <TypographySmall className="text-xs uppercase text-muted-foreground font-semibold">Bio</TypographySmall>
+                    <TypographyP className="text-sm mt-1 [&:not(:first-child)]:mt-1">
+                      {user.bio}
+                    </TypographyP>
                   </div>
                 )}
 
@@ -192,20 +199,21 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                       rel="noopener noreferrer"
                       className="text-sm text-blue-600 hover:underline"
                     >
-                      GitHub Profile
+                      <TypographySmall className="text-blue-600">GitHub Profile</TypographySmall>
                     </a>
                   </div>
                 )}
 
-                <div className="text-xs text-muted-foreground">
-                  User ID: <code className="bg-muted px-1 rounded">#{user.id}</code>
+                <div className="text-xs text-muted-foreground flex items-center gap-1">
+                  <TypographyMuted className="text-xs">User ID:</TypographyMuted>
+                  <TypographyInlineCode className="text-[10px]">#{user.id}</TypographyInlineCode>
                 </div>
               </div>
 
               <div className="space-y-2 pt-4 border-t">
                 <Button className="w-full gap-2" onClick={() => setIsEditing(true)}>
                   <UserIcon className="w-4 h-4" />
-                  Edit Profile
+                  <TypographySmall>Edit Profile</TypographySmall>
                 </Button>
                 <Button
                   variant="outline"
@@ -216,7 +224,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                   }}
                 >
                   <Layout className="w-4 h-4" />
-                  Manage My Rices
+                  <TypographySmall>Manage My Rices</TypographySmall>
                 </Button>
                 <Button
                   variant="ghost"
@@ -225,7 +233,9 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                   disabled={loading}
                 >
                   <Trash2 className="w-4 h-4" />
-                  {loading ? 'Deleting...' : 'Delete Account'}
+                  <TypographySmall className="text-destructive">
+                    {loading ? 'Deleting...' : 'Delete Account'}
+                  </TypographySmall>
                 </Button>
               </div>
             </div>

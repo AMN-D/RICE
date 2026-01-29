@@ -26,6 +26,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Plus, LogOut, User as UserIcon, LogIn, Sun, Moon, Monitor, ArrowUp, ArrowDown } from 'lucide-react';
 import { useTheme } from '@/components/theme-provider';
+import { TypographyH1, TypographySmall, TypographyMuted } from '@/components/ui/typography';
 
 export default function Header() {
   const { user, loading, login, logout } = useAuth();
@@ -53,7 +54,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="border-b bg-background sticky top-0 z-50 w-full">
+      <header className="bg-background sticky top-0 z-50 w-full">
         <div className="container flex h-16 items-center justify-between gap-4 max-w-7xl mx-auto px-4">
           {/* Logo/Title */}
           <div
@@ -61,7 +62,7 @@ export default function Header() {
             onClick={() => navigate('/')}
           >
             <div className="hidden sm:block">
-              <h1 className="text-3xl pacifico-regular tracking-normal">Rice</h1>
+              <TypographyH1 className="text-3xl pacifico-regular tracking-normal text-left">Rice</TypographyH1>
             </div>
           </div>
 
@@ -74,9 +75,15 @@ export default function Header() {
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="popular">Popular</SelectItem>
-                  <SelectItem value="top_rated">Top Rated</SelectItem>
-                  <SelectItem value="recent">Recent</SelectItem>
+                  <SelectItem value="popular">
+                    <TypographySmall>Popular</TypographySmall>
+                  </SelectItem>
+                  <SelectItem value="top_rated">
+                    <TypographySmall>Top Rated</TypographySmall>
+                  </SelectItem>
+                  <SelectItem value="recent">
+                    <TypographySmall>Recent</TypographySmall>
+                  </SelectItem>
                 </SelectContent>
               </Select>
               <Button
@@ -113,22 +120,22 @@ export default function Header() {
                   <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{user.username}</p>
-                        <p className="text-xs leading-none text-muted-foreground">
+                        <TypographySmall>{user.username}</TypographySmall>
+                        <TypographyMuted className="text-xs leading-none">
                           {user.email || 'Logged in user'}
-                        </p>
+                        </TypographyMuted>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
 
                     <DropdownMenuItem onClick={() => navigate('/create')} className="cursor-pointer">
                       <Plus className="mr-2 h-4 w-4" />
-                      <span>Create Rice</span>
+                      <TypographySmall>Create Rice</TypographySmall>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem onClick={() => setShowProfileModal(true)} className="cursor-pointer">
                       <UserIcon className="mr-2 h-4 w-4" />
-                      <span>Edit Profile</span>
+                      <TypographySmall>Edit Profile</TypographySmall>
                     </DropdownMenuItem>
 
                     <DropdownMenuSeparator />
@@ -137,21 +144,21 @@ export default function Header() {
                       <DropdownMenuSubTrigger className="cursor-pointer">
                         <Sun className="mr-2 h-4 w-4 dark:hidden" />
                         <Moon className="mr-2 h-4 w-4 hidden dark:block" />
-                        <span>Theme</span>
+                        <TypographySmall>Theme</TypographySmall>
                       </DropdownMenuSubTrigger>
                       <DropdownMenuPortal>
                         <DropdownMenuSubContent>
                           <DropdownMenuItem onClick={() => setTheme("light")} className="cursor-pointer">
                             <Sun className="mr-2 h-4 w-4" />
-                            <span>Light</span>
+                            <TypographySmall>Light</TypographySmall>
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => setTheme("dark")} className="cursor-pointer">
                             <Moon className="mr-2 h-4 w-4" />
-                            <span>Dark</span>
+                            <TypographySmall>Dark</TypographySmall>
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => setTheme("system")} className="cursor-pointer">
                             <Monitor className="mr-2 h-4 w-4" />
-                            <span>System</span>
+                            <TypographySmall>System</TypographySmall>
                           </DropdownMenuItem>
                         </DropdownMenuSubContent>
                       </DropdownMenuPortal>
@@ -160,7 +167,7 @@ export default function Header() {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={logout} className="text-destructive focus:text-destructive cursor-pointer">
                       <LogOut className="mr-2 h-4 w-4" />
-                      <span>Logout</span>
+                      <TypographySmall>Logout</TypographySmall>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -169,7 +176,7 @@ export default function Header() {
               <div className="flex items-center gap-2">
                 <Button onClick={login} variant="default" className="gap-2">
                   <LogIn className="w-4 h-4" />
-                  Login
+                  <TypographySmall>Login</TypographySmall>
                 </Button>
 
                 <DropdownMenu>
@@ -177,18 +184,18 @@ export default function Header() {
                     <Button variant="outline" size="icon">
                       <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                       <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                      <span className="sr-only">Toggle theme</span>
+                      <TypographySmall className="sr-only">Toggle theme</TypographySmall>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => setTheme("light")} className="cursor-pointer">
-                      Light
+                      <TypographySmall>Light</TypographySmall>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setTheme("dark")} className="cursor-pointer">
-                      Dark
+                      <TypographySmall>Dark</TypographySmall>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setTheme("system")} className="cursor-pointer">
-                      System
+                      <TypographySmall>System</TypographySmall>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

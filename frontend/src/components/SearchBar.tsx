@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
+import { TypographySmall } from '@/components/ui/typography';
 
 export default function SearchBar() {
   const [searchParams] = useSearchParams();
@@ -47,7 +48,7 @@ export default function SearchBar() {
           className="absolute right-0 top-0 h-full text-muted-foreground hover:text-foreground"
         >
           <Search className="w-5 h-5" />
-          <span className="sr-only">Search</span>
+          <TypographySmall className="sr-only">Search</TypographySmall>
         </Button>
       </div>
     </form>
