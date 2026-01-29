@@ -15,6 +15,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { TypographyH2, TypographyH3, TypographySmall, TypographyMuted } from '@/components/ui/typography';
 
 export default function Home() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -49,24 +50,24 @@ export default function Home() {
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Hero Section */}
         <div className="mb-8 space-y-2">
-          <h2 className="text-3xl font-extrabold tracking-tight flex items-center gap-2">
+          <TypographyH2 className="flex items-center gap-2 border-b-0 pb-0">
             <Terminal className="w-8 h-8 text-primary" />
             {query ? `Search Results for "${query}"` : 'Explore Rices'}
-          </h2>
-          <p className="text-muted-foreground">
+          </TypographyH2>
+          <TypographyMuted>
             {query
               ? `Found ${total} result${total !== 1 ? 's' : ''} matching your criteria.`
               : "Don't browse for too long or you'll end up rebuilding everything."
             }
-          </p>
+          </TypographyMuted>
         </div>
 
         {/* Error State */}
         {error && (
           <Alert variant="destructive" className="mb-8">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
+            <AlertTitle><TypographySmall className="font-bold">Error</TypographySmall></AlertTitle>
+            <AlertDescription><TypographySmall>{error}</TypographySmall></AlertDescription>
           </Alert>
         )}
 
@@ -85,13 +86,13 @@ export default function Home() {
             <div className="bg-muted p-6 rounded-full mb-4">
               <SearchX className="w-12 h-12 text-muted-foreground" />
             </div>
-            <h3 className="text-xl font-semibold mb-2">No rices found</h3>
-            <p className="text-muted-foreground max-w-sm mb-6">
+            <TypographyH3 className="mb-2">No rices found</TypographyH3>
+            <TypographyMuted className="max-w-sm mb-6">
               {query
                 ? "We couldn't find any rices matching your search. Try different keywords or clear the filters."
                 : "It looks like there are no rices to display right now. Why not be the first to share one?"
               }
-            </p>
+            </TypographyMuted>
             {query ? (
               <Button onClick={() => navigate('/')} variant="outline">Clear Search</Button>
             ) : (

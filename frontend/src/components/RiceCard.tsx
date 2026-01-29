@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Star, ImageIcon, Calendar, Clock } from 'lucide-react';
 import type { RiceCard as RiceCardType } from '../types';
+import { TypographySmall, TypographyMuted, TypographyLarge } from '@/components/ui/typography';
 
 interface RiceCardProps {
     rice: RiceCardType;
@@ -36,7 +37,7 @@ export function RiceCard({ rice }: RiceCardProps) {
                 ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground font-mono">
                         <ImageIcon className="w-12 h-12 mb-2 opacity-20" />
-                        <span className="text-[10px] uppercase tracking-widest">No preview image</span>
+                        <TypographyMuted className="text-[10px] uppercase tracking-widest">No preview image</TypographyMuted>
                     </div>
                 )}
                 {rice.avg_rating !== null && (
@@ -50,11 +51,11 @@ export function RiceCard({ rice }: RiceCardProps) {
             </div>
 
             <CardHeader className="p-4 pb-2">
-                <h3 className="text-lg font-bold truncate group-hover:text-primary transition-colors">
+                <TypographyLarge className="truncate group-hover:text-primary transition-colors">
                     {rice.name}
-                </h3>
+                </TypographyLarge>
                 {rice.poster_name && (
-                    <span className="text-xs text-muted-foreground">by {rice.poster_name}</span>
+                    <TypographyMuted className="text-xs">by {rice.poster_name}</TypographyMuted>
                 )}
             </CardHeader>
 
@@ -62,16 +63,16 @@ export function RiceCard({ rice }: RiceCardProps) {
                 {/* Stats */}
                 <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                     <div className="flex items-center gap-1">
-                        <span className="font-medium">Views:</span>
-                        <span>{rice.views}</span>
+                        <TypographySmall className="font-medium">Views:</TypographySmall>
+                        <TypographySmall>{rice.views}</TypographySmall>
                     </div>
                     <div className="flex items-center gap-1">
-                        <span className="font-medium">Themes:</span>
-                        <span>{rice.themes_count}</span>
+                        <TypographySmall className="font-medium">Themes:</TypographySmall>
+                        <TypographySmall>{rice.themes_count}</TypographySmall>
                     </div>
                     <div className="flex items-center gap-1">
-                        <span className="font-medium">Reviews:</span>
-                        <span>{rice.reviews_count}</span>
+                        <TypographySmall className="font-medium">Reviews:</TypographySmall>
+                        <TypographySmall>{rice.reviews_count}</TypographySmall>
                     </div>
                 </div>
 
@@ -81,14 +82,14 @@ export function RiceCard({ rice }: RiceCardProps) {
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-muted-foreground">
                     <div className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
-                        <span className="font-medium">Created:</span>
-                        <span>{new Date(rice.date_added).toLocaleDateString()}</span>
+                        <TypographySmall className="font-medium text-[10px]">Created:</TypographySmall>
+                        <TypographySmall className="text-[10px]">{new Date(rice.date_added).toLocaleDateString()}</TypographySmall>
                     </div>
                     {rice.date_updated && (
                         <div className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
-                            <span className="font-medium">Updated:</span>
-                            <span>{new Date(rice.date_updated).toLocaleDateString()}</span>
+                            <TypographySmall className="font-medium text-[10px]">Updated:</TypographySmall>
+                            <TypographySmall className="text-[10px]">{new Date(rice.date_updated).toLocaleDateString()}</TypographySmall>
                         </div>
                     )}
                 </div>
