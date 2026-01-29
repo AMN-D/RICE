@@ -4,6 +4,16 @@ import { riceService } from '../services/riceService';
 import { imageUploadService } from '../services/imageUploadService';
 import type { RiceCreate, ThemeCreate, MediaCreate } from '../types';
 import Header from '../components/Header';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertCircle, Plus, Trash2, Upload, Info } from "lucide-react";
 
 export default function CreateRice() {
   const navigate = useNavigate();
@@ -124,226 +134,282 @@ export default function CreateRice() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background text-foreground">
       <Header />
 
       <main className="max-w-4xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">Create New Rice</h1>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">Create New Rice</h1>
+            <Button variant="outline" onClick={() => navigate('/')}>Cancel</Button>
+          </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-              {error}
-            </div>
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Basic Info */}
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-gray-900">Basic Information</h2>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Info className="w-5 h-5 text-primary" />
+                  Basic Information
+                </CardTitle>
+                <CardDescription>
+                  Enter the core details of your rice setup.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="riceName">
+                    Rice Name <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="riceName"
+                    type="text"
+                    value={riceName}
+                    onChange={(e) => setRiceName(e.target.value)}
+                    required
+                    placeholder="My Awesome Rice"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Rice Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={riceName}
-                  onChange={(e) => setRiceName(e.target.value)}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800"
-                  placeholder="My Awesome Rice"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Dotfile URL <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="url"
-                  value={dotfileUrl}
-                  onChange={(e) => setDotfileUrl(e.target.value)}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800"
-                  placeholder="https://github.com/user/dotfiles"
-                />
-              </div>
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="dotfileUrl">
+                    Dotfile URL <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="dotfileUrl"
+                    type="url"
+                    value={dotfileUrl}
+                    onChange={(e) => setDotfileUrl(e.target.value)}
+                    required
+                    placeholder="https://github.com/user/dotfiles"
+                  />
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Themes */}
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-gray-900">Themes</h2>
-                <button
+                <div className="space-y-1">
+                  <h2 className="text-2xl font-semibold tracking-tight">Themes</h2>
+                  <p className="text-sm text-muted-foreground">Add different variations of your setup (e.g., Light, Dark).</p>
+                </div>
+                <Button
                   type="button"
                   onClick={addTheme}
-                  className="px-4 py-2 bg-gray-800 text-white text-sm rounded-lg hover:bg-gray-700"
+                  size="sm"
+                  className="gap-2"
                 >
-                  + Add Theme
-                </button>
+                  <Plus className="w-4 h-4" /> Add Theme
+                </Button>
               </div>
 
               {themes.map((theme, themeIndex) => (
-                <div key={themeIndex} className="border border-gray-200 rounded-lg p-6 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-medium text-gray-900">Theme {themeIndex + 1}</h3>
+                <Card key={themeIndex} className="relative overflow-hidden">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                    <div className="flex items-center gap-3">
+                      <Badge variant="outline" className="h-6 w-6 rounded-full flex items-center justify-center p-0">
+                        {themeIndex + 1}
+                      </Badge>
+                      <CardTitle className="text-xl">Theme Details</CardTitle>
+                    </div>
                     {themes.length > 1 && (
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="sm"
                         onClick={() => removeTheme(themeIndex)}
-                        className="text-red-600 hover:text-red-800 text-sm"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
                       >
-                        Remove Theme
-                      </button>
+                        <Trash2 className="w-4 h-4 mr-2" /> Remove Theme
+                      </Button>
                     )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Theme Name</label>
-                    <input
-                      type="text"
-                      value={theme.name}
-                      onChange={(e) => updateTheme(themeIndex, 'name', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800"
-                      placeholder="Dark Mode"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                    <textarea
-                      value={theme.description}
-                      onChange={(e) => updateTheme(themeIndex, 'description', e.target.value)}
-                      rows={2}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800"
-                      placeholder="A clean dark theme..."
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
-                    <input
-                      type="text"
-                      value={theme.tags}
-                      onChange={(e) => updateTheme(themeIndex, 'tags', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800"
-                      placeholder="dark, minimal, nord"
-                    />
-                  </div>
-
-                  {/* Media */}
-                  <div className="space-y-3 pt-4 border-t">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-medium text-gray-900">Media</h4>
-                      <button
-                        type="button"
-                        onClick={() => addMedia(themeIndex)}
-                        className="px-3 py-1 bg-gray-200 text-gray-800 text-sm rounded hover:bg-gray-300"
-                      >
-                        + Add Media
-                      </button>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label>Theme Name</Label>
+                        <Input
+                          type="text"
+                          value={theme.name}
+                          onChange={(e) => updateTheme(themeIndex, 'name', e.target.value)}
+                          placeholder="e.g. Dark Mode, Minimalist"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Tags</Label>
+                        <Input
+                          type="text"
+                          value={theme.tags}
+                          onChange={(e) => updateTheme(themeIndex, 'tags', e.target.value)}
+                          placeholder="dark, minimal, nord"
+                        />
+                      </div>
                     </div>
 
-                    {(theme.media || []).map((media, mediaIndex) => (
-                      <div key={mediaIndex} className="bg-gray-50 p-4 rounded-lg space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-700">Media {mediaIndex + 1}</span>
-                          {(theme.media?.length || 0) > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => removeMedia(themeIndex, mediaIndex)}
-                              className="text-red-600 hover:text-red-800 text-xs"
-                            >
-                              Remove
-                            </button>
-                          )}
-                        </div>
+                    <div className="space-y-2">
+                      <Label>Description</Label>
+                      <Textarea
+                        value={theme.description}
+                        onChange={(e) => updateTheme(themeIndex, 'description', e.target.value)}
+                        rows={2}
+                        placeholder="A short description of this theme..."
+                      />
+                    </div>
 
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Media URL or Upload</label>
-                          <div className="flex gap-2">
-                            <input
-                              type="url"
-                              value={media.url}
-                              onChange={(e) => updateMedia(themeIndex, mediaIndex, 'url', e.target.value)}
-                              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-800"
-                              placeholder="https://example.com/image.png"
-                            />
-                            <label className={`px-3 py-2 rounded-lg text-sm cursor-pointer transition-colors ${uploadingMedia === `${themeIndex}-${mediaIndex}`
-                              ? 'bg-gray-400 text-white cursor-wait'
-                              : 'bg-blue-600 text-white hover:bg-blue-700'
-                              }`}>
-                              {uploadingMedia === `${themeIndex}-${mediaIndex}` ? 'Uploading...' : 'Upload'}
-                              <input
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                disabled={uploadingMedia === `${themeIndex}-${mediaIndex}`}
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0];
-                                  if (file) handleFileUpload(themeIndex, mediaIndex, file);
-                                }}
-                              />
-                            </label>
-                          </div>
-                          {media.url && (
-                            <img
-                              src={media.url}
-                              alt="Preview"
-                              className="mt-2 w-full h-32 object-cover rounded-lg border"
-                              onError={(e) => (e.currentTarget.style.display = 'none')}
-                            />
-                          )}
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">Type</label>
-                            <select
-                              value={media.media_type}
-                              onChange={(e) => updateMedia(themeIndex, mediaIndex, 'media_type', e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-800"
-                            >
-                              <option value="IMAGE">Image</option>
-                              <option value="VIDEO">Video</option>
-                            </select>
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">Thumbnail URL (optional)</label>
-                            <input
-                              type="url"
-                              value={media.thumbnail_url || ''}
-                              onChange={(e) => updateMedia(themeIndex, mediaIndex, 'thumbnail_url', e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-800"
-                              placeholder="https://example.com/thumb.png"
-                            />
-                          </div>
-                        </div>
+                    {/* Media */}
+                    <div className="space-y-4 pt-4 border-t">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Media Assets</h4>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => addMedia(themeIndex)}
+                          className="gap-2"
+                        >
+                          <Plus className="w-3 h-3" /> Add Media
+                        </Button>
                       </div>
-                    ))}
-                  </div>
-                </div>
+
+                      <div className="grid gap-4">
+                        {(theme.media || []).map((media, mediaIndex) => (
+                          <div key={mediaIndex} className="relative p-4 rounded-xl border bg-muted/30 space-y-4 group">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-bold uppercase text-muted-foreground/70">Asset {mediaIndex + 1}</span>
+                              {(theme.media?.length || 0) > 1 && (
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => removeMedia(themeIndex, mediaIndex)}
+                                  className="h-8 w-8 text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              )}
+                            </div>
+
+                            <div className="space-y-4">
+                              <div className="flex flex-col sm:flex-row gap-4">
+                                <div className="flex-1 space-y-2">
+                                  <Label className="text-xs">Media URL or Upload</Label>
+                                  <div className="flex gap-2">
+                                    <Input
+                                      type="url"
+                                      value={media.url}
+                                      onChange={(e) => updateMedia(themeIndex, mediaIndex, 'url', e.target.value)}
+                                      className="h-9"
+                                      placeholder="https://example.com/image.png"
+                                    />
+                                    <div className="relative">
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        disabled={uploadingMedia === `${themeIndex}-${mediaIndex}`}
+                                        className="h-9 gap-2 relative"
+                                        asChild
+                                      >
+                                        <label className="cursor-pointer">
+                                          {uploadingMedia === `${themeIndex}-${mediaIndex}` ? (
+                                            <span className="animate-spin mr-1">⌛</span>
+                                          ) : (
+                                            <Upload className="w-4 h-4" />
+                                          )}
+                                          {uploadingMedia === `${themeIndex}-${mediaIndex}` ? '...' : 'Upload'}
+                                          <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            disabled={uploadingMedia === `${themeIndex}-${mediaIndex}`}
+                                            onChange={(e) => {
+                                              const file = e.target.files?.[0];
+                                              if (file) handleFileUpload(themeIndex, mediaIndex, file);
+                                            }}
+                                          />
+                                        </label>
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="w-full sm:w-32 space-y-2">
+                                  <Label className="text-xs">Type</Label>
+                                  <Select
+                                    value={media.media_type}
+                                    onValueChange={(val) => updateMedia(themeIndex, mediaIndex, 'media_type', val)}
+                                  >
+                                    <SelectTrigger className="h-9">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="IMAGE">Image</SelectItem>
+                                      <SelectItem value="VIDEO">Video</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label className="text-xs">Thumbnail URL (optional)</Label>
+                                <Input
+                                  type="url"
+                                  value={media.thumbnail_url || ''}
+                                  onChange={(e) => updateMedia(themeIndex, mediaIndex, 'thumbnail_url', e.target.value)}
+                                  className="h-9"
+                                  placeholder="https://example.com/thumb.png"
+                                />
+                              </div>
+
+                              {media.url && (
+                                <div className="mt-2 relative aspect-video rounded-lg overflow-hidden border bg-background">
+                                  <img
+                                    src={media.url}
+                                    alt="Preview"
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => (e.currentTarget.parentElement!.style.display = 'none')}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
 
+
             {/* Submit */}
-            <div className="flex gap-4 pt-6 border-t">
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex-1 py-3 px-6 bg-gray-800 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 font-medium"
-              >
-                {loading ? 'Creating...' : 'Create Rice'}
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate('/')}
-                className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
-              >
-                Cancel
-              </button>
+            <div className="space-y-4 pt-4">
+              <Separator />
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 h-12 text-base font-semibold"
+                >
+                  {loading ? 'Creating...' : 'Create Rice'}
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => navigate('/')}
+                  variant="outline"
+                  className="h-12 px-8"
+                >
+                  Cancel
+                </Button>
+              </div>
             </div>
           </form>
         </div>
