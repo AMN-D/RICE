@@ -15,7 +15,21 @@ export interface ProfileData {
   avatar_url?: string;
 }
 
-// Rice types
+// Minimal Rice type for homepage cards - optimized API response
+export interface RiceCard {
+  id: number;
+  name: string;
+  views: number;
+  date_added: string;
+  date_updated?: string;
+  themes_count: number;
+  reviews_count: number;
+  avg_rating: number | null;
+  preview_image: string | null;
+  poster_name: string | null;
+}
+
+// Full Rice type for detail pages
 export interface Rice {
   id: number;
   user_id: number;

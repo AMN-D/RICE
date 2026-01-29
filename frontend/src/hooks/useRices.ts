@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { riceService } from '../services/riceService';
-import type { Rice } from '../types';
+import type { RiceCard } from '../types';
 
 export const useRices = (page = 1, limit = 20, sortBy = 'popular', sortOrder = 'desc', search = '') => {
-  const [rices, setRices] = useState<Rice[]>([]);
+  const [rices, setRices] = useState<RiceCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [total, setTotal] = useState(0);

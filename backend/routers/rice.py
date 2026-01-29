@@ -9,7 +9,8 @@ from schemas.rice import (
     RiceOut, 
     RiceOutSimple,
     RiceOutWithThemes,
-    RicePaginationOut
+    RicePaginationOut,
+    RiceCardPaginationOut
 )
 from typing import List, Dict, Any, Optional
 import math
@@ -38,7 +39,7 @@ async def get_rice(
     await rice_service.increment_rice_views(db, rice_id)
     return rice
 
-@router.get("/", response_model=RicePaginationOut)
+@router.get("/", response_model=RiceCardPaginationOut)
 async def get_all_rices(
     skip: int = Query(0, ge=0, description="Pagination offset"),
     limit: int = Query(20, ge=1, le=100, description="Items per page"),
@@ -47,7 +48,8 @@ async def get_all_rices(
     q: Optional[str] = Query(None, description="Search query"),
     db: AsyncSession = Depends(get_db)
 ):
-    rices, total = await rice_service.get_all_rice(
+    """Optimized endpoint for homepage rice cards - returns minimal data"""
+    cards, total = await rice_service.get_all_rice_cards(
         db=db,
         skip=skip,
         limit=limit,
@@ -56,8 +58,8 @@ async def get_all_rices(
         q=q
     )
     
-    return RicePaginationOut(
-        items=rices,
+    return RiceCardPaginationOut(
+        items=cards,
         total=total,
         page=(skip // limit) + 1,
         limit=limit,

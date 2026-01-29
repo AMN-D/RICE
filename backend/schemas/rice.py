@@ -27,6 +27,22 @@ class RiceOut(RiceBase):
   class Config:
     from_attributes = True
 
+class RiceCardOut(BaseModel):
+  """Minimal schema for homepage rice cards - optimized for performance"""
+  id: int
+  name: str
+  views: int
+  date_added: datetime
+  date_updated: datetime | None = None
+  themes_count: int = 0
+  reviews_count: int = 0
+  avg_rating: float | None = None
+  preview_image: str | None = None
+  poster_name: str | None = None
+
+  class Config:
+    from_attributes = True
+
 class RiceOutSimple(RiceBase):
   id: int
   user_id: int
@@ -51,6 +67,15 @@ class RiceOutWithThemes(RiceOutSimple):
 
   class Config:
     from_attributes = True
+
+class RiceCardPaginationOut(BaseModel):
+  """Optimized pagination for homepage cards"""
+  items: list[RiceCardOut]
+  total: int
+  page: int
+  limit: int
+  total_pages: int
+
 class RicePaginationOut(BaseModel):
   items: list[RiceOutSimple]
   total: int

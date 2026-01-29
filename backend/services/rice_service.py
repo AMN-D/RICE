@@ -144,6 +144,87 @@ async def get_all_rice(
     return items, total_count or 0
 
 
+async def get_all_rice_cards(
+    db: AsyncSession,
+    skip: int = 0,
+    limit: int = 20,
+    sort_by: str = "recent",
+    sort_order: str = "desc",
+    q: Optional[str] = None
+) -> tuple[list[dict], int]:
+    """
+    Optimized query for homepage rice cards - returns only essential data.
+    Returns dicts with pre-computed values instead of ORM objects.
+    """
+    from models.user import User, Profile
+    
+    base_query = select(Rice).where(Rice.is_deleted == False)
+    
+    if q:
+        search_pattern = f"%{q}%"
+        base_query = base_query.join(Theme).where(
+            (Rice.name.ilike(search_pattern) | Theme.tags.ilike(search_pattern))
+        ).group_by(Rice.id)
+    
+    total_count = await db.scalar(select(func.count()).select_from(base_query.subquery()))
+
+    # Optimized query - only load what's needed for cards
+    query = select(Rice).options(
+        selectinload(Rice.themes).selectinload(Theme.media),
+        selectinload(Rice.reviews),
+        selectinload(Rice.user).selectinload(User.profiles)
+    ).where(Rice.is_deleted == False)
+    
+    if q:
+        search_pattern = f"%{q}%"
+        query = query.join(Theme).where(
+            (Rice.name.ilike(search_pattern) | Theme.tags.ilike(search_pattern))
+        ).group_by(Rice.id)
+
+    is_asc = sort_order == "asc"
+
+    if sort_by == "popular":
+        query = query.order_by(Rice.views.asc() if is_asc else Rice.views.desc())
+    elif sort_by == "top_rated":
+        avg_rating_col = func.avg(Review.rating)
+        order_clause = avg_rating_col.asc() if is_asc else avg_rating_col.desc()
+        query = query.outerjoin(Review, and_(Review.rice_id == Rice.id))
+        if not q:
+            query = query.group_by(Rice.id)
+        query = query.order_by(order_clause.nullslast(), Rice.date_added.desc())
+    elif sort_by == "recent":
+        query = query.order_by(Rice.date_added.asc() if is_asc else Rice.date_added.desc())
+    else:
+        query = query.order_by(Rice.date_added.asc() if is_asc else Rice.date_added.desc())
+
+    query = query.offset(skip).limit(limit)
+
+    result = await db.execute(query)
+    items = result.scalars().all()
+    
+    # Transform to minimal card data
+    cards = []
+    for rice in items:
+        poster_name = None
+        if rice.user and rice.user.profiles:
+            poster_name = rice.user.profiles.username
+        
+        cards.append({
+            "id": rice.id,
+            "name": rice.name,
+            "views": rice.views,
+            "date_added": rice.date_added,
+            "date_updated": rice.date_updated,
+            "themes_count": rice.themes_count,
+            "reviews_count": rice.reviews_count,
+            "avg_rating": rice.avg_rating,
+            "preview_image": rice.preview_image,
+            "poster_name": poster_name
+        })
+    
+    return cards, total_count or 0
+
+
 async def update_rice(
     db: AsyncSession,
     rice_id: int,

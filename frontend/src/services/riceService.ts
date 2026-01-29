@@ -1,10 +1,10 @@
 import { api } from './api';
-import type { Rice, RiceCreate, PaginatedResponse } from '../types';
+import type { Rice, RiceCard, RiceCreate, PaginatedResponse } from '../types';
 
 export const riceService = {
-  // Get all rices
+  // Get all rices for homepage cards (minimal data)
   getAllRices: async (page = 1, limit = 20, sortBy = 'popular', sortOrder = 'desc', q = '') => {
-    const response = await api.get<PaginatedResponse<Rice>>('/rices/', {
+    const response = await api.get<PaginatedResponse<RiceCard>>('/rices/', {
       params: {
         skip: (page - 1) * limit,
         limit,
