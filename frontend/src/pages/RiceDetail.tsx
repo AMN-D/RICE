@@ -1,24 +1,30 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { riceService } from '../services/riceService';
-import { userService } from '../services/userService';
 import { reviewService } from '../services/reviewService';
 import type { Rice, Review, GetReviewsParams, CreateReviewRequest } from '../types';
 import Header from '../components/Header';
-import ReviewForm from '../components/ReviewForm';
-import ReviewsList from '../components/ReviewsList';
-
-interface UserInfo {
-  id: number;
-  username: string;
-  avatar_url: string | null;
-}
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function RiceDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [rice, setRice] = useState<Rice | null>(null);
-  const [user, setUser] = useState<UserInfo | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewsLoading, setReviewsLoading] = useState(false);
@@ -26,6 +32,13 @@ export default function RiceDetail() {
   const [hasMoreReviews, setHasMoreReviews] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Review form state
+  const [rating, setRating] = useState(0);
+  const [hoveredRating, setHoveredRating] = useState(0);
+  const [comment, setComment] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState('');
 
   useEffect(() => {
     if (id) {
@@ -39,10 +52,6 @@ export default function RiceDetail() {
       setLoading(true);
       const riceData = await riceService.getRiceById(riceId);
       setRice(riceData);
-      
-      // Fetch user info
-      const userData = await userService.getUserById(riceData.user_id);
-      setUser(userData);
     } catch (err) {
       setError('Failed to load rice details');
     } finally {
@@ -63,14 +72,13 @@ export default function RiceDetail() {
         skip,
         limit: 20,
       });
-      
+
       if (append) {
         setReviews((prev) => [...prev, ...reviewsData]);
       } else {
         setReviews(reviewsData);
       }
-      
-      // Check if there are more reviews to load
+
       setHasMoreReviews(reviewsData.length === 20);
     } catch (err) {
       console.error('Failed to load reviews', err);
@@ -79,31 +87,33 @@ export default function RiceDetail() {
     }
   };
 
-  const handleUpdateReview = (reviewId: number, updatedReview: Review) => {
-    setReviews((prev) => 
-      prev.map((r) => (r.id === reviewId ? updatedReview : r))
-    );
-    // Reload rice data to update average rating
-    if (id) loadRice(parseInt(id));
-  };
-
-  const handleDeleteReview = (reviewId: number) => {
-    setReviews((prev) => prev.filter((r) => r.id !== reviewId));
-    // Reload rice data to update review count and average rating
-    if (id) loadRice(parseInt(id));
-  };
-
-  const handleCreateReview = async (reviewData: CreateReviewRequest) => {
+  const handleCreateReview = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!id) return;
-    
-    const newReview = await reviewService.createReview(parseInt(id), reviewData);
-    
-    // Add new review to the beginning of the list
-    setReviews((prev) => [newReview, ...prev]);
-    setShowReviewForm(false);
-    
-    // Reload rice data to update review count and average rating
-    loadRice(parseInt(id));
+
+    if (rating === 0) {
+      setFormError('Please select a rating');
+      return;
+    }
+    if (!comment.trim()) {
+      setFormError('Please write a comment');
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      setFormError('');
+      const newReview = await reviewService.createReview(parseInt(id), { rating, comment: comment.trim() });
+      setReviews((prev) => [newReview, ...prev]);
+      setShowReviewForm(false);
+      setRating(0);
+      setComment('');
+      loadRice(parseInt(id));
+    } catch (err: any) {
+      setFormError(err.response?.data?.detail || 'Failed to submit review');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleSortChange = (newSortBy: 'recent' | 'helpful' | 'rating_high' | 'rating_low') => {
@@ -121,130 +131,137 @@ export default function RiceDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <Header />
-        <div className="flex items-center justify-center h-96">
-          <div className="text-xl text-gray-600">Loading...</div>
-        </div>
+        <main className="max-w-6xl mx-auto px-4 py-8">
+          <Skeleton className="h-8 w-32 mb-6" />
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-10 w-3/4 mb-4" />
+              <Skeleton className="h-6 w-1/4" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-6 w-full mb-2" />
+              <Skeleton className="h-6 w-2/3" />
+            </CardContent>
+          </Card>
+        </main>
       </div>
     );
   }
 
   if (error || !rice) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <Header />
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="bg-white rounded-lg shadow p-8 text-center">
-            <p className="text-red-600 mb-4">{error || 'Rice not found'}</p>
-            <button
-              onClick={() => navigate('/')}
-              className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
-            >
-              Back to Home
-            </button>
-          </div>
-        </div>
+        <main className="max-w-4xl mx-auto px-4 py-8">
+          <Alert variant="destructive">
+            <AlertDescription>{error || 'Rice not found'}</AlertDescription>
+          </Alert>
+          <Button onClick={() => navigate('/')} className="mt-4">
+            Back to Home
+          </Button>
+        </main>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Header />
 
       <main className="max-w-6xl mx-auto px-4 py-8">
         {/* Back Button */}
-        <button
-          onClick={() => navigate('/')}
-          className="mb-6 text-gray-600 hover:text-gray-900 flex items-center gap-2"
-        >
+        <Button variant="ghost" onClick={() => navigate('/')} className="mb-6">
           ← Back to Home
-        </button>
+        </Button>
 
-        {/* Rice Header */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
-          <div className="p-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">{rice.name}</h1>
-            
-            {/* User Info */}
-            {user && (
-              <div 
-                onClick={() => navigate(`/user/${user.id}`)}
-                className="flex items-center gap-3 mb-6 cursor-pointer hover:opacity-80 w-fit"
+        {/* Rice Header Card */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-3xl">{rice.name}</CardTitle>
+
+            {/* Poster Info */}
+            {rice.poster_name && (
+              <div
+                onClick={() => navigate(`/user/${rice.user_id}`)}
+                className="flex items-center gap-3 cursor-pointer hover:opacity-80 w-fit mt-2"
               >
-                {user.avatar_url ? (
-                  <img 
-                    src={user.avatar_url} 
-                    alt={user.username}
-                    className="w-10 h-10 rounded-full border-2 border-gray-200"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-semibold">
-                    {user.username[0].toUpperCase()}
-                  </div>
-                )}
+                <Avatar className="h-10 w-10">
+                  {rice.poster_avatar ? (
+                    <AvatarImage src={rice.poster_avatar} alt={rice.poster_name} />
+                  ) : null}
+                  <AvatarFallback>{rice.poster_name[0]?.toUpperCase()}</AvatarFallback>
+                </Avatar>
                 <div>
-                  <p className="text-sm text-gray-500">Posted by</p>
-                  <p className="font-medium text-gray-900">{user.username}</p>
+                  <p className="text-sm text-muted-foreground">Posted by</p>
+                  <p className="font-medium">{rice.poster_name}</p>
                 </div>
               </div>
             )}
+          </CardHeader>
 
-            <div className="flex items-center gap-6 text-gray-600 mb-6">
-              <span>{rice.views} views</span>
-              <span>{rice.reviews_count} reviews</span>
+          <CardContent className="space-y-4">
+            {/* Stats */}
+            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+              <span><strong>Views:</strong> {rice.views}</span>
+              <span><strong>Reviews:</strong> {rice.reviews_count}</span>
               {rice.avg_rating && (
-                <span className="flex items-center gap-1">
-                  <span className="text-yellow-600">★</span>
+                <Badge variant="secondary" className="gap-1">
+                  <span className="text-yellow-500">★</span>
                   {rice.avg_rating.toFixed(1)}
-                </span>
+                </Badge>
+              )}
+              <span><strong>Dotfile Clicks:</strong> {rice.dotfile_clicks}</span>
+            </div>
+
+            <Separator />
+
+            {/* Dates */}
+            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+              <span><strong>Created:</strong> {new Date(rice.date_added).toLocaleDateString()}</span>
+              {rice.date_updated && (
+                <span><strong>Updated:</strong> {new Date(rice.date_updated).toLocaleDateString()}</span>
               )}
             </div>
 
-            <a
-              href={rice.dotfile_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              View Dotfiles →
-            </a>
-          </div>
-        </div>
+            <Separator />
 
-        {/* Themes */}
+            {/* Dotfile Link */}
+            <Button asChild>
+              <a href={rice.dotfile_url} target="_blank" rel="noopener noreferrer">
+                View Dotfiles →
+              </a>
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Themes Section */}
         {rice.themes && rice.themes.length > 0 && (
-          <div className="space-y-6 mb-8">
-            <h2 className="text-2xl font-bold text-gray-900">Themes</h2>
-            
-            {rice.themes.map((theme) => (
-              <div key={theme.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    {theme.name}
-                  </h3>
-                  
-                  {theme.description && (
-                    <p className="text-gray-600 mb-4">{theme.description}</p>
-                  )}
+          <div className="space-y-4 mb-8">
+            <h2 className="text-2xl font-bold">Themes ({rice.themes.length})</h2>
 
+            {rice.themes.map((theme) => (
+              <Card key={theme.id}>
+                <CardHeader>
+                  <CardTitle>{theme.name}</CardTitle>
+                  {theme.description && (
+                    <CardDescription>{theme.description}</CardDescription>
+                  )}
+                </CardHeader>
+                <CardContent>
+                  {/* Tags */}
                   {theme.tags && (
                     <div className="flex flex-wrap gap-2 mb-4">
                       {theme.tags.split(',').map((tag, idx) => (
-                        <span
-                          key={idx}
-                          className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
-                        >
-                          {tag.trim()}
-                        </span>
+                        <Badge key={idx} variant="outline">{tag.trim()}</Badge>
                       ))}
                     </div>
                   )}
 
                   {/* Media Gallery */}
                   {theme.media && theme.media.length > 0 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {theme.media.map((media) => (
                         <div key={media.id} className="relative group">
                           {media.media_type === 'IMAGE' ? (
@@ -254,60 +271,164 @@ export default function RiceDetail() {
                               className="w-full h-48 object-cover rounded-lg"
                             />
                           ) : (
-                            <div className="w-full h-48 bg-gray-200 rounded-lg flex items-center justify-center">
-                              <span className="text-gray-500">Video</span>
+                            <div className="w-full h-48 bg-muted rounded-lg flex items-center justify-center">
+                              <span className="text-muted-foreground">Video</span>
                             </div>
                           )}
                         </div>
                       ))}
                     </div>
                   )}
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         )}
 
         {/* No Themes */}
         {(!rice.themes || rice.themes.length === 0) && (
-          <div className="bg-white rounded-lg shadow p-8 text-center mb-8">
-            <p className="text-gray-500">No themes available for this rice yet.</p>
-          </div>
+          <Card className="mb-8">
+            <CardContent className="py-8 text-center text-muted-foreground">
+              No themes available for this rice yet.
+            </CardContent>
+          </Card>
         )}
 
         {/* Reviews Section */}
         <div className="space-y-6">
           {/* Write Review Button */}
           {!showReviewForm && (
-            <button
-              onClick={() => setShowReviewForm(true)}
-              className="w-full md:w-auto px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
-            >
+            <Button onClick={() => setShowReviewForm(true)}>
               Write a Review
-            </button>
+            </Button>
           )}
 
           {/* Review Form */}
           {showReviewForm && (
-            <ReviewForm
-              onSubmit={handleCreateReview}
-              onCancel={() => setShowReviewForm(false)}
-            />
+            <Card>
+              <CardHeader>
+                <CardTitle>Write a Review</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleCreateReview} className="space-y-4">
+                  {/* Rating Input */}
+                  <div>
+                    <Label>Rating *</Label>
+                    <div className="flex gap-2 mt-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setRating(star)}
+                          onMouseEnter={() => setHoveredRating(star)}
+                          onMouseLeave={() => setHoveredRating(0)}
+                          className="text-3xl transition-colors focus:outline-none"
+                        >
+                          <span className={star <= (hoveredRating || rating) ? 'text-yellow-500' : 'text-muted'}>
+                            ★
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Comment Input */}
+                  <div>
+                    <Label htmlFor="comment">Comment *</Label>
+                    <Textarea
+                      id="comment"
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                      rows={4}
+                      placeholder="Share your thoughts about this rice..."
+                      disabled={submitting}
+                      className="mt-2"
+                    />
+                  </div>
+
+                  {/* Error */}
+                  {formError && (
+                    <Alert variant="destructive">
+                      <AlertDescription>{formError}</AlertDescription>
+                    </Alert>
+                  )}
+
+                  {/* Buttons */}
+                  <div className="flex gap-3">
+                    <Button type="submit" disabled={submitting}>
+                      {submitting ? 'Submitting...' : 'Submit Review'}
+                    </Button>
+                    <Button type="button" variant="outline" onClick={() => setShowReviewForm(false)} disabled={submitting}>
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
           )}
 
           {/* Reviews List */}
-          <ReviewsList
-            reviews={reviews}
-            totalReviews={rice.reviews_count || 0}
-            onLoadMore={handleLoadMore}
-            hasMore={hasMoreReviews}
-            loading={reviewsLoading}
-            sortBy={sortBy}
-            onSortChange={handleSortChange}
-            currentUserId={user?.id}
-            onUpdateReview={handleUpdateReview}
-            onDeleteReview={handleDeleteReview}
-          />
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Reviews ({rice.reviews_count || 0})</CardTitle>
+                <div className="flex items-center gap-2">
+                  <Label className="text-sm">Sort by:</Label>
+                  <Select value={sortBy} onValueChange={(v) => handleSortChange(v as any)}>
+                    <SelectTrigger className="w-40">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="recent">Most Recent</SelectItem>
+                      <SelectItem value="helpful">Most Helpful</SelectItem>
+                      <SelectItem value="rating_high">Highest Rating</SelectItem>
+                      <SelectItem value="rating_low">Lowest Rating</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {reviews.length === 0 ? (
+                <p className="text-center text-muted-foreground py-4">
+                  No reviews yet. Be the first to review!
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {reviews.map((review) => (
+                    <div key={review.id} className="border rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{review.username}</span>
+                          <Badge variant="secondary">
+                            {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
+                          </Badge>
+                        </div>
+                        <span className="text-sm text-muted-foreground">
+                          {new Date(review.date_created).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-sm">{review.comment}</p>
+                      {review.helpful_count > 0 && (
+                        <p className="text-xs text-muted-foreground mt-2">
+                          {review.helpful_count} found this helpful
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Load More */}
+              {hasMoreReviews && reviews.length > 0 && (
+                <div className="mt-6 text-center">
+                  <Button onClick={handleLoadMore} disabled={reviewsLoading} variant="outline">
+                    {reviewsLoading ? 'Loading...' : 'Load More Reviews'}
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </main>
     </div>

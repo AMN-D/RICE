@@ -4,16 +4,7 @@ import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import {
-    Eye,
-    Star,
-    Layers,
-    MessageSquare,
-    ImageIcon,
-    User,
-    Calendar,
-    Clock
-} from 'lucide-react';
+import { Star, ImageIcon, Calendar, Clock } from 'lucide-react';
 import type { RiceCard as RiceCardType } from '../types';
 
 interface RiceCardProps {
@@ -63,10 +54,7 @@ export function RiceCard({ rice }: RiceCardProps) {
                     {rice.name}
                 </h3>
                 {rice.poster_name && (
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <User className="w-3 h-3" />
-                        <span>by {rice.poster_name}</span>
-                    </div>
+                    <span className="text-xs text-muted-foreground">by {rice.poster_name}</span>
                 )}
             </CardHeader>
 
@@ -74,15 +62,15 @@ export function RiceCard({ rice }: RiceCardProps) {
                 {/* Stats */}
                 <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                     <div className="flex items-center gap-1">
-                        <Eye className="w-3.5 h-3.5" />
+                        <span className="font-medium">Views:</span>
                         <span>{rice.views}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                        <Layers className="w-3.5 h-3.5" />
+                        <span className="font-medium">Themes:</span>
                         <span>{rice.themes_count}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                        <MessageSquare className="w-3.5 h-3.5" />
+                        <span className="font-medium">Reviews:</span>
                         <span>{rice.reviews_count}</span>
                     </div>
                 </div>

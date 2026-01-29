@@ -35,8 +35,11 @@ async def get_rice(
     rice_id: int,
     db: AsyncSession = Depends(get_db)
 ):
-    rice = await rice_service.get_rice_by_id(db, rice_id)
+    # First increment views
     await rice_service.increment_rice_views(db, rice_id)
+    
+    # Then fetch full details with poster info
+    rice = await rice_service.get_rice_with_details(db, rice_id)
     return rice
 
 @router.get("/", response_model=RiceCardPaginationOut)

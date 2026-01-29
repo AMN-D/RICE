@@ -45,7 +45,8 @@ async def get_rice_by_id(
     include_deleted: bool = False
 ) -> Rice:
     query = select(Rice).options(
-        selectinload(Rice.themes).selectinload(Theme.media)
+        selectinload(Rice.themes).selectinload(Theme.media),
+        selectinload(Rice.reviews)
     ).where(Rice.id == rice_id)
 
     if not include_deleted:
@@ -62,6 +63,57 @@ async def get_rice_by_id(
 
     await db.refresh(rice)
     return rice
+
+
+async def get_rice_with_details(
+    db: AsyncSession,
+    rice_id: int,
+    include_deleted: bool = False
+) -> dict:
+    from models.user import User, Profile
+    
+    query = select(Rice).options(
+        selectinload(Rice.themes).selectinload(Theme.media),
+        selectinload(Rice.reviews),
+        selectinload(Rice.user).selectinload(User.profiles)
+    ).where(Rice.id == rice_id)
+
+    if not include_deleted:
+        query = query.where(Rice.is_deleted == False)
+
+    result = await db.execute(query)
+    rice = result.scalar_one_or_none()
+
+    if not rice:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Rice not found"
+        )
+
+    # Get poster info from user profile
+    poster_name = None
+    poster_avatar = None
+    if rice.user and rice.user.profiles:
+        poster_name = rice.user.profiles.username
+        poster_avatar = rice.user.profiles.avatar_url
+
+    # Return as dict with all computed properties
+    return {
+        "id": rice.id,
+        "user_id": rice.user_id,
+        "name": rice.name,
+        "dotfile_url": rice.dotfile_url,
+        "views": rice.views,
+        "dotfile_clicks": rice.dotfile_clicks,
+        "date_added": rice.date_added,
+        "date_updated": rice.date_updated,
+        "themes": rice.themes,
+        "avg_rating": rice.avg_rating,
+        "reviews_count": rice.reviews_count,
+        "poster_name": poster_name,
+        "poster_avatar": poster_avatar
+    }
+
 
 async def get_rice_by_user(
     db: AsyncSession,

@@ -23,6 +23,8 @@ class RiceOut(RiceBase):
   themes: list[ThemeOut] = []
   avg_rating: float | None = None
   reviews_count: int = 0
+  poster_name: str | None = None
+  poster_avatar: str | None = None
 
   class Config:
     from_attributes = True

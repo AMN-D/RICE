@@ -39,11 +39,11 @@ export interface Rice {
   dotfile_clicks: number;
   date_added: string;
   date_updated?: string;
-  themes_count: number;
   reviews_count: number;
   avg_rating: number | null;
-  preview_image: string | null;
   themes?: Theme[];
+  poster_name: string | null;
+  poster_avatar: string | null;
 }
 
 // Theme types  
